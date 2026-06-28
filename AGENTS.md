@@ -34,26 +34,28 @@ pnpm run verify
 ## Repository Layout
 
 - `.github/`: workflows, issue templates, repo ruleset examples, and ownership.
-- `packages/runtime/`: public runtime, protocol types, server/client, auth, storage, telemetry, and security helpers.
 - `packages/protocol/`: `@a2amesh/protocol` — standalone protocol type definitions (zero deps).
-- `packages/client/`: standalone client re-exports.
-- `packages/adapters/`: **deprecated** — meta-package re-exporting per-provider adapter packages.
-- `packages/adapter-base/`: abstract base adapter and contract helpers.
-- `packages/adapter-openai/`: OpenAI Chat API adapter.
-- `packages/adapter-anthropic/`: Anthropic Claude Messages API adapter.
-- `packages/adapter-langchain/`: LangChain / LangGraph runnable adapter.
-- `packages/adapter-google-adk/`: Google Agent Development Kit HTTP adapter.
-- `packages/adapter-llamaindex/`: LlamaIndex query/chat engine adapter.
-- `packages/adapter-crewai/`: CrewAI HTTP bridge adapter.
+- `packages/runtime/`: public runtime, protocol types, server/client, auth, storage, telemetry, and security helpers.
 - `packages/registry/`: registry server, discovery, health, matching, and storage helpers.
 - `packages/mcp/`: A2A and MCP mapping helpers.
-- `packages/transport-ws/`: WebSocket transport helpers.
-- `packages/transport-grpc/`: gRPC transport helpers.
-- `packages/testing/`: fixtures, matchers, and local server helpers.
-- `packages/codex-bridge/`: Codex-style tool bridge helpers.
-- `packages/create-a2amesh/`: `create-a2amesh` scaffolder.
 - `packages/cli/`: `a2amesh` command-line interface.
+- `packages/create-a2amesh/`: `create-a2amesh` scaffolder.
+- `packages/adapters/`: **deprecated** internal meta-package re-exporting per-provider adapter packages.
+- `packages/adapter-base/`: internal abstract base adapter and contract helpers.
+- `packages/adapter-openai/`: internal OpenAI Chat API adapter.
+- `packages/adapter-anthropic/`: internal Anthropic Claude Messages API adapter.
+- `packages/adapter-langchain/`: internal LangChain / LangGraph runnable adapter.
+- `packages/adapter-google-adk/`: internal Google Agent Development Kit HTTP adapter.
+- `packages/adapter-llamaindex/`: internal LlamaIndex query/chat engine adapter.
+- `packages/adapter-crewai/`: internal CrewAI HTTP bridge adapter.
+- `packages/transport-ws/`: internal WebSocket transport helpers.
+- `packages/transport-grpc/`: internal gRPC transport helpers.
+- `packages/auth/`: internal authentication helpers.
+- `packages/telemetry/`: internal telemetry helpers.
+- `packages/fleet/`: internal fleet/orchestration helpers.
+- `packages/worker-runtime/`: internal worker runtime helpers.
 - `apps/`: demos and UI smoke surfaces.
+- `examples/`: executable package consumer examples.
 - `docs/`: canonical markdown documentation.
 - `docs-site/`: VitePress site that mirrors the canonical docs topics.
 - `scripts/`: repository validation, docs generation, release, and cleanup scripts.
@@ -64,12 +66,12 @@ pnpm run verify
 Respect this dependency direction:
 
 ```text
-types/schemas -> core utilities -> protocol runtime -> transports -> client SDK -> registry -> adapters -> bridges -> CLI/apps
+types/schemas -> core utilities -> protocol runtime -> transports -> registry -> adapters -> bridges -> CLI/apps
 ```
 
-`packages/runtime` must not import adapters, registry, CLI, apps, docs-site, or bridge packages.
+`packages/protocol` must import zero packages (bottom of dependency graph).
 
-`packages/client` may import public core APIs only.
+`packages/runtime` must not import adapters, registry, CLI, apps, docs-site, or bridge packages.
 
 `packages/registry` may import public core APIs, not adapter or bridge internals.
 
@@ -77,13 +79,11 @@ types/schemas -> core utilities -> protocol runtime -> transports -> client SDK 
 
 `packages/adapter-base` must not import any other adapter package. Each `packages/adapter-*` may import `packages/adapter-base` and public core APIs, not registry server internals.
 
-`packages/protocol` must import zero packages (bottom of dependency graph).
-
-`packages/mcp` may import core/client public APIs and MCP-specific types only.
+`packages/mcp` may import core public APIs and MCP-specific types only.
 
 `packages/cli` may import public package APIs and must not import app internals.
 
-`apps/*` may depend on packages, never the reverse.
+`apps/*` and `examples/*` may depend on packages, never the reverse.
 
 `docs-site` must not import runtime source directly.
 
