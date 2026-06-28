@@ -1,9 +1,35 @@
-# A2A Mesh
+<div align="center">
 
-[![npm](https://img.shields.io/npm/v/%40a2amesh%2Fruntime.svg)](https://www.npmjs.com/package/@a2amesh/runtime)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![pnpm](https://img.shields.io/badge/pnpm-11.7.0-blue.svg)](https://pnpm.io/)
+<h1>A2A Mesh</h1>
 
+<p>
+  <a href="https://www.npmjs.com/package/@a2amesh/runtime">
+    <img src="https://img.shields.io/npm/v/%40a2amesh%2Fruntime.svg" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@a2amesh/runtime">
+    <img src="https://img.shields.io/npm/dm/%40a2amesh%2Fruntime.svg" alt="npm monthly downloads" />
+  </a>
+  <a href="https://www.npmjs.com/package/@a2amesh/runtime">
+    <img src="https://img.shields.io/npm/types/%40a2amesh%2Fruntime.svg" alt="TypeScript types" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/npm/l/%40a2amesh%2Fruntime.svg" alt="license" />
+  </a>
+  <a href="https://pnpm.io/">
+    <img src="https://img.shields.io/badge/pnpm-11.7.0-blue.svg" alt="pnpm" />
+  </a>
+  <a href="https://deepwiki.com/oaslananka/a2amesh">
+    <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" />
+  </a>
+</p>
+
+<p>
+  <a href="https://www.buymeacoffee.com/oaslananka">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=oaslananka&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" />
+  </a>
+</p>
+
+</div>
 A2A Mesh is an independent TypeScript runtime and toolkit for the Agent2Agent (A2A) protocol. It is not an official Google, Linux Foundation, or a2aproject package.
 
 ## What It Provides
