@@ -1,0 +1,53 @@
+version: '3'
+
+tasks:
+  setup:
+    cmds:
+      - pnpm run setup
+
+  lint:
+    cmds:
+      - pnpm run lint
+
+  format:
+    cmds:
+      - pnpm run format
+
+  typecheck:
+    cmds:
+      - pnpm run typecheck
+
+  test:
+    cmds:
+      - pnpm run test
+
+  build:
+    cmds:
+      - pnpm run build
+
+  docs:
+    cmds:
+      - pnpm run docs:build
+      - pnpm run docs:check
+
+  security:
+    cmds:
+      - pnpm run security
+
+  gc:
+    cmds:
+      - pnpm run gc
+
+  verify:
+    cmds:
+      - pnpm run verify
+
+  release:
+    cmds:
+      - pnpm run release:dry-run
+      - pnpm run release:artifacts
+      - pnpm run release:validate
+
+  clean:
+    cmds:
+      - pnpm run clean

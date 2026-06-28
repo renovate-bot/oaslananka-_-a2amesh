@@ -1,0 +1,148 @@
+name: Security
+
+'on':
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: '24.16.0'
+  GITLEAKS_VERSION: '8.30.1'
+  ACTIONLINT_VERSION: '1.7.12'
+  OSV_SCANNER_VERSION: 'v2.3.8'
+  ZIZMOR_VERSION: '1.25.2'
+  GO_VERSION: '1.26.2'
+
+jobs:
+  gitleaks:
+    name: Security / gitleaks
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "v${GITLEAKS_VERSION}" --repo gitleaks/gitleaks --pattern "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" --output gitleaks.tar.gz
+          # IMPORTANT: When updating GITLEAKS_VERSION above, update checksum below too!
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+      - run: gitleaks detect --source . --config .gitleaks.toml --redact --verbose
+
+  audit:
+    name: Security / audit
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: pnpm audit --audit-level high
+
+  osv:
+    name: Security / osv
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - run: go install "github.com/google/osv-scanner/v2/cmd/osv-scanner@${OSV_SCANNER_VERSION}"
+      - run: osv-scanner scan source --lockfile=pnpm-lock.yaml .
+
+  zizmor:
+    name: Security / zizmor
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Install zizmor
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "v${ZIZMOR_VERSION}" --repo zizmorcore/zizmor --pattern "zizmor-x86_64-unknown-linux-gnu.tar.gz" --output zizmor.tar.gz
+          # IMPORTANT: When updating ZIZMOR_VERSION above, update checksum below too!
+          echo "aa1facd105f0d83fe5c55b1adcd9d7417de5d83aa27471f91dc0b66cf3803577  zizmor.tar.gz" | sha256sum -c -
+          tar -xzf zizmor.tar.gz
+          sudo install -m 0755 zizmor /usr/local/bin/zizmor
+      - run: zizmor .github/workflows/ --min-severity medium
+
+  actionlint:
+    name: Security / actionlint
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Install actionlint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "v${ACTIONLINT_VERSION}" --repo rhysd/actionlint --pattern "actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" --output actionlint.tar.gz
+          # IMPORTANT: When updating ACTIONLINT_VERSION above, update checksum below too!
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          sudo install -m 0755 actionlint /usr/local/bin/actionlint
+      - run: actionlint .github/workflows/*.yml
+
+  dependency-license:
+    name: Security / dependency-license
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: pnpm licenses list --prod
+
+  reuse:
+    name: Security / REUSE
+    if: github.repository_owner == 'oaslananka' || github.repository_owner == 'oaslananka-ops'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Install reuse
+        run: pip install --user reuse==6.2.0
+      - run: reuse lint

@@ -1,0 +1,53 @@
+name: Release Please
+
+'on':
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '24.16.0'
+
+jobs:
+  release-pr:
+    name: Release Please / pull-request
+    if: github.repository == 'oaslananka/a2amesh'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          install: 'false'
+          cache: 'false'
+      - name: Validate release config
+        run: node scripts/check-release-config.mjs
+      - name: Create or update release pull request
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+        with:
+          token: ${{ github.token }}
+          repo-url: ${{ github.repository }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          include-component-in-tag: true
+          skip-github-release: true
+          skip-labeling: true

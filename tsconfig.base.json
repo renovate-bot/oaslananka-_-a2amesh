@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "composite": true,
+    "paths": {
+      "@a2amesh/runtime": ["./packages/runtime/src/index.ts"],
+      "@a2amesh/internal-adapters": ["./packages/adapters/src/index.ts"],
+      "@a2amesh/registry": ["./packages/registry/src/index.ts"],
+      "@a2amesh/cli": ["./packages/cli/src/index.ts"],
+      "@a2amesh/internal-transport-grpc": ["./packages/transport-grpc/src/index.ts"],
+      "@a2amesh/internal-transport-ws": ["./packages/transport-ws/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "@a2amesh/mcp",
+  "version": "0.1.0-alpha.0",
+  "description": "Secure, auditable, approval-aware, risk-classified, and policy-bound MCP execution bridge for A2A Mesh.",
+  "keywords": [
+    "a2a",
+    "a2amesh",
+    "a2a-mesh",
+    "agent-to-agent",
+    "agents",
+    "mcp",
+    "security",
+    "audit",
+    "typescript"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/mcp"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@a2amesh/runtime": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.22.1 <25"
+  }
+}

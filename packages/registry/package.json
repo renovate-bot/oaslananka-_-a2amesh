@@ -1,0 +1,66 @@
+{
+  "name": "@a2amesh/registry",
+  "version": "0.1.0-alpha.0",
+  "description": "A2A Mesh registry, discovery, health, trust, and storage infrastructure for A2A-native agents.",
+  "keywords": [
+    "a2a",
+    "a2amesh",
+    "a2a-mesh",
+    "agent-to-agent",
+    "agents",
+    "registry",
+    "discovery",
+    "typescript"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/registry"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "typecheck": "tsc -b",
+    "test": "vitest run --root ../.. --config vitest.config.ts --project unit packages/registry/tests"
+  },
+  "dependencies": {
+    "@a2amesh/runtime": "workspace:^",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "typescript": "6.0.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

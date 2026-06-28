@@ -1,0 +1,84 @@
+[
+  {
+    "name": "batch requests are explicitly unsupported",
+    "request": [
+      {
+        "jsonrpc": "2.0",
+        "id": "batch-a2a-1-0",
+        "method": "message/send",
+        "params": {
+          "message": {
+            "kind": "message",
+            "role": "ROLE_USER",
+            "parts": [
+              {
+                "type": "text",
+                "text": "batch is unsupported"
+              }
+            ],
+            "messageId": "msg-a2a-1-0-batch",
+            "timestamp": "2026-05-24T12:02:00Z"
+          }
+        }
+      }
+    ],
+    "expectedError": {
+      "code": -32600,
+      "message": "Batch requests are not supported"
+    }
+  },
+  {
+    "name": "malformed message payload returns InvalidParams",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "invalid-params-a2a-1-0",
+      "method": "message/send",
+      "params": {
+        "message": {}
+      }
+    },
+    "expectedError": {
+      "code": -32602,
+      "message": "Invalid parameters"
+    }
+  },
+  {
+    "name": "invalid timestamp returns InvalidParams",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "invalid-timestamp-a2a-1-0",
+      "method": "message/send",
+      "params": {
+        "message": {
+          "kind": "message",
+          "role": "ROLE_USER",
+          "parts": [
+            {
+              "type": "text",
+              "text": "invalid timestamp"
+            }
+          ],
+          "messageId": "msg-a2a-1-0-invalid-timestamp",
+          "timestamp": "not-a-date"
+        }
+      }
+    },
+    "expectedError": {
+      "code": -32602,
+      "message": "Invalid parameters"
+    }
+  },
+  {
+    "name": "unknown method returns MethodNotFound",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "method-not-found-a2a-1-0",
+      "method": "tasks/unknown",
+      "params": {}
+    },
+    "expectedError": {
+      "code": -32601,
+      "message": "Method tasks/unknown not found"
+    }
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "name": "@a2amesh/internal-transport-ws",
+  "version": "0.1.0-alpha.0",
+  "description": "WebSocket transport helpers for A2A Mesh agents.",
+  "keywords": [
+    "a2a",
+    "agent2agent",
+    "websocket",
+    "json-rpc",
+    "typescript"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/transport-ws"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "peerDependencies": {
+    "ws": "^8.18.0"
+  },
+  "peerDependenciesMeta": {
+    "ws": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.1",
+    "vitest": "4.1.9",
+    "ws": "8.21.0"
+  },
+  "dependencies": {
+    "@a2amesh/runtime": "workspace:^"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "test": "pnpm --dir ../.. run build && vitest run --root ../.. --config vitest.config.ts --project unit packages/transport-ws/tests",
+    "typecheck": "tsc -b"
+  },
+  "private": true
+}

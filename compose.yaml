@@ -1,0 +1,39 @@
+services:
+  registry:
+    build:
+      context: .
+      dockerfile: apps/demo/Dockerfile
+    command: node packages/registry/dist/bin/start.js
+    ports:
+      - '3099:3099'
+    environment:
+      PORT: '3099'
+      ALLOW_LOCALHOST: 'true'
+      ALLOW_PRIVATE_NETWORKS: 'true'
+      NODE_ENV: development
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3099/health || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  demo-agent:
+    build:
+      context: .
+      dockerfile: apps/demo/Dockerfile
+    ports:
+      - '41234:41234'
+    environment:
+      PORT: '41234'
+      REGISTRY_URL: 'http://registry:3099'
+      NODE_ENV: development
+    depends_on:
+      registry:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:41234/health || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

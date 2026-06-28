@@ -1,0 +1,59 @@
+{
+  "name": "@a2amesh/internal-adapter-base",
+  "version": "0.1.0-alpha.0",
+  "description": "Abstract base adapter and contract helpers for provider-specific A2A adapters.",
+  "keywords": [
+    "a2a",
+    "agent2agent",
+    "adapter"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/adapter-base"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "typecheck": "tsc -b",
+    "test": "echo 'No runtime tests for adapter-base; see individual adapter package tests' && exit 0"
+  },
+  "dependencies": {
+    "@a2amesh/runtime": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js",
+      "default": "./dist/contract.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "private": true
+}

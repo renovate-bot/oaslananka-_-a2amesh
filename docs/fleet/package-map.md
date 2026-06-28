@@ -1,0 +1,66 @@
+# Fleet Package Map
+
+This document defines the package boundaries, dependency directions, and architectural responsibilities for Fleet capabilities within the A2A Mesh ecosystem.
+
+## Dependency Direction
+
+To maintain a clean and acyclic architecture, Fleet packages must adhere to the following dependency flow (from lowest level to highest level):
+
+```text
+packages/runtime (and types) -> packages/fleet (core fleet protocols) -> worker packages -> provider adapter packages -> applications/CLI
+```
+
+- Lower-level packages **must never** import from higher-level packages.
+- Dependencies should be kept to a minimum; always prefer relying on `packages/runtime` public APIs when possible.
+
+## Package Boundaries & Responsibilities
+
+### `packages/runtime`
+
+A2A runtime/protocol only. Must remain strictly provider-neutral.
+
+- **Belongs Here:** Standard A2A protocol types, `A2AServer`, `A2AClient`, basic task and state management, base security (auth/URL policies), and universal telemetry.
+- **Does NOT Belong Here:** `packages/worker-*` and `packages/adapter-*` packages must stay above core and must not be imported by `packages/runtime`.
+
+### `packages/registry`
+
+- **Belongs Here:** Discovery, health, capability records, future Worker Cards.
+
+### `packages/fleet`
+
+- **Belongs Here:** Orchestration, domain model, strategy surfaces.
+
+### `packages/worker-runtime`
+
+- **Belongs Here:** Provider-neutral worker lifecycle contracts.
+
+### `packages/policy`
+
+- **Belongs Here:** Execution guardrails and approval/budget policy.
+
+### `packages/artifacts`
+
+- **Belongs Here:** Run artifacts, reports, diffs, logs, reviews, handoff outputs.
+
+### Worker & Provider Adapter Packages
+
+Packages designed to interface with specific runtime environments or LLM providers (e.g., `packages/adapter-openai`, `packages/worker-*`).
+
+- **Does NOT Belong Here:** Core protocol logic, fleet orchestration algorithms, or cross-provider routing rules.
+
+### Applications
+
+- `apps/mission-control` is the operator UI above packages.
+
+## Architecture and Non-goals
+
+See [ADR-0009: Fleet Architecture](../architecture/adr/0009-fleet-architecture.md) for the integration boundaries. Crucially:
+
+- `packages/runtime` is provider-neutral.
+- Direct internal hacking or unsupported extraction methods are not permitted.
+- Human approval is required for external side effects (e.g., remote push, publish, issue close, PR merge, deploy).
+
+## Additional Rules
+
+- **No Circular Dependencies:** A strict DAG (Directed Acyclic Graph) must be enforced.
+- **Public API Exports:** All cross-package interactions must occur via explicitly declared exports. Deep imports into another package's internals are strictly forbidden.

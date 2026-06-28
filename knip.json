@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": ["tests/performance/k6/*.js"],
+  "ignoreDependencies": [
+    "search-insights",
+    "better-sqlite3",
+    "jscpd",
+    "@anthropic-ai/sdk",
+    "langchain",
+    "llamaindex"
+  ],
+  "ignoreBinaries": ["gh", "gitleaks", "playwright", "view", "where.exe"]
+}

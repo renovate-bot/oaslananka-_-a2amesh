@@ -1,0 +1,65 @@
+{
+  "name": "@a2amesh/internal-adapter-langchain",
+  "version": "0.1.0-alpha.0",
+  "description": "LangChain adapter for the Agent2Agent protocol.",
+  "keywords": [
+    "a2a",
+    "agent2agent",
+    "langchain",
+    "langgraph",
+    "adapter"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/adapter-langchain"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "typecheck": "tsc -b",
+    "test": "pnpm --dir ../.. run build && vitest run --root ../.. --config vitest.config.ts --project unit packages/adapter-langchain/tests"
+  },
+  "dependencies": {
+    "@a2amesh/runtime": "workspace:^",
+    "@a2amesh/internal-adapter-base": "workspace:^"
+  },
+  "peerDependencies": {
+    "langchain": "^0.3.37 || ^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "langchain": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "private": true
+}

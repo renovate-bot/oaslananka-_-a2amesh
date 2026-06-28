@@ -1,0 +1,66 @@
+{
+  "name": "create-a2amesh",
+  "version": "0.1.0-alpha.0",
+  "description": "Create A2A Mesh agent projects.",
+  "keywords": [
+    "a2a",
+    "a2amesh",
+    "a2a-mesh",
+    "agent-to-agent",
+    "agents",
+    "scaffold",
+    "runtime",
+    "typescript"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/create-a2amesh"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "create-a2amesh": "bin/create-a2amesh.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "bin"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "test": "pnpm --dir ../.. run build && vitest run --root ../.. --config vitest.config.ts --project unit packages/create-a2amesh/tests",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@a2amesh/cli": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.21"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

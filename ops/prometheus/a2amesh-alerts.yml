@@ -1,0 +1,21 @@
+groups:
+  - name: a2amesh.rules
+    rules:
+      - alert: A2AMeshHighErrorRate
+        expr: |
+          (
+            sum(rate(a2a_requests_total{status="error"}[5m]))
+            / clamp_min(sum(rate(a2a_requests_total[5m])), 1)
+          ) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: A2A Mesh error rate is elevated
+      - alert: A2AMeshNoHealthyAgents
+        expr: a2a_registry_agents{status="healthy"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: No healthy agents are registered

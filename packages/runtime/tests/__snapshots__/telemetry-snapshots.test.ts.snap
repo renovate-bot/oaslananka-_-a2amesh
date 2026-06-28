@@ -1,0 +1,299 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OpenTelemetry telemetry snapshots > snapshots runtime task, SSE and auth metric instruments > runtime otel metrics 1`] = `
+[
+  {
+    "dataPointType": "SUM",
+    "description": "Total rejected authenticated requests.",
+    "name": "a2a_runtime_auth_rejected_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Active SSE connections.",
+    "name": "a2a_runtime_sse_connections_active",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 0,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total SSE connections opened.",
+    "name": "a2a_runtime_sse_connections_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 2,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total SSE reconnects detected.",
+    "name": "a2a_runtime_sse_reconnect_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total tasks canceled.",
+    "name": "a2a_runtime_task_canceled_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total tasks completed successfully.",
+    "name": "a2a_runtime_task_completed_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total tasks created by the runtime.",
+    "name": "a2a_runtime_task_created_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "HISTOGRAM",
+    "description": "Task duration in milliseconds.",
+    "name": "a2a_runtime_task_duration_ms",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": {
+          "bucketCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+          ],
+          "count": 3,
+          "explicitBounds": [
+            0,
+            5,
+            10,
+            25,
+            50,
+            75,
+            100,
+            250,
+            500,
+            750,
+            1000,
+            2500,
+            5000,
+            7500,
+            10000,
+          ],
+          "max": 500,
+          "min": 75,
+          "sum": 825,
+        },
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "ms",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total tasks that failed.",
+    "name": "a2a_runtime_task_failed_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+  {
+    "dataPointType": "SUM",
+    "description": "Total tasks that entered working state.",
+    "name": "a2a_runtime_task_started_total",
+    "points": [
+      {
+        "attributes": {
+          "service_name": "Telemetry Snapshot Agent",
+          "service_version": "1.2.3",
+        },
+        "value": 1,
+      },
+    ],
+    "scope": "@a2amesh/runtime",
+    "unit": "",
+  },
+]
+`;
+
+exports[`OpenTelemetry telemetry snapshots > snapshots runtime task, SSE and auth metric instruments > runtime prometheus metrics 1`] = `
+"# HELP a2a_runtime_task_created_total Total tasks created by the runtime.
+# TYPE a2a_runtime_task_created_total counter
+a2a_runtime_task_created_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_task_started_total Total tasks that entered working state.
+# TYPE a2a_runtime_task_started_total counter
+a2a_runtime_task_started_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_task_completed_total Total tasks completed successfully.
+# TYPE a2a_runtime_task_completed_total counter
+a2a_runtime_task_completed_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_task_failed_total Total tasks that failed.
+# TYPE a2a_runtime_task_failed_total counter
+a2a_runtime_task_failed_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_task_canceled_total Total tasks canceled.
+# TYPE a2a_runtime_task_canceled_total counter
+a2a_runtime_task_canceled_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_auth_rejected_total Total rejected authenticated requests.
+# TYPE a2a_runtime_auth_rejected_total counter
+a2a_runtime_auth_rejected_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_sse_connections_total Total SSE connections opened.
+# TYPE a2a_runtime_sse_connections_total counter
+a2a_runtime_sse_connections_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 2
+# HELP a2a_runtime_sse_reconnect_total Total SSE reconnects detected.
+# TYPE a2a_runtime_sse_reconnect_total counter
+a2a_runtime_sse_reconnect_total{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 1
+# HELP a2a_runtime_sse_connections_active Active SSE connections.
+# TYPE a2a_runtime_sse_connections_active gauge
+a2a_runtime_sse_connections_active{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 0
+# HELP a2a_runtime_tasks_active Active tasks.
+# TYPE a2a_runtime_tasks_active gauge
+a2a_runtime_tasks_active{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 0
+# HELP a2a_runtime_task_duration_ms Task duration in milliseconds.
+# TYPE a2a_runtime_task_duration_ms histogram
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="50"} 0
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="100"} 1
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="250"} 2
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="500"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="1000"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="2500"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="5000"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="10000"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="30000"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="60000"} 3
+a2a_runtime_task_duration_ms_bucket{service_name="Telemetry Snapshot Agent",service_version="1.2.3",le="+Inf"} 3
+a2a_runtime_task_duration_ms_sum{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 825
+a2a_runtime_task_duration_ms_count{service_name="Telemetry Snapshot Agent",service_version="1.2.3"} 3"
+`;
+
+exports[`OpenTelemetry telemetry snapshots > snapshots server, client propagation and outbound HTTP spans > client propagated headers 1`] = `
+{
+  "A2A-Version": "1.0",
+  "Content-Type": "application/json",
+  "traceparent": "<traceparent>",
+}
+`;
+
+exports[`OpenTelemetry telemetry snapshots > snapshots server, client propagation and outbound HTTP spans > otel spans 1`] = `
+[
+  {
+    "attributes": {
+      "a2a.agent_name": "Telemetry Snapshot Agent",
+      "rpc.method": "message/send",
+    },
+    "name": "a2a.handleRpc",
+    "scope": "@a2amesh/runtime",
+    "status": "OK",
+  },
+  {
+    "attributes": {
+      "a2a.context_id": "context-telemetry",
+      "a2a.task_id": "<task-id>",
+    },
+    "name": "a2a.processTask",
+    "scope": "@a2amesh/runtime",
+    "status": "OK",
+  },
+  {
+    "attributes": {
+      "a2a.registry.operation": "registration",
+      "a2a.transport": "http",
+      "http.attempt": 1,
+      "http.max_retries": 1,
+      "http.method": "POST",
+      "http.status_code": 201,
+      "http.url": "https://downstream.example/a2a/health",
+    },
+    "name": "http.request",
+    "scope": "@a2amesh/runtime",
+    "status": "OK",
+  },
+]
+`;

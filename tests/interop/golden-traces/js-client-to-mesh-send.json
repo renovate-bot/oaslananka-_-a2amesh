@@ -1,0 +1,12 @@
+{
+  "scenario": "js-client-to-warp-send",
+  "profile": "official-a2a-v1.0",
+  "client": "official-js-client",
+  "server": "a2amesh-server",
+  "events": [
+    { "type": "request", "method": "message/send", "headers": { "A2A-Version": "1.0" } },
+    { "type": "task", "state": "TASK_STATE_SUBMITTED" },
+    { "type": "task", "state": "TASK_STATE_WORKING" },
+    { "type": "task", "state": "TASK_STATE_COMPLETED" }
+  ]
+}

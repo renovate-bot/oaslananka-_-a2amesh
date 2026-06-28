@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">A2A Mesh five minute demo flow</title>
+  <desc id="desc">Four-panel walkthrough for installing, running a demo agent, validating an Agent Card, and observing tasks.</desc>
+  <rect width="960" height="420" rx="28" fill="#020617"/>
+  <text x="48" y="62" fill="#f8fafc" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700">5-minute demo flow</text>
+  <text x="48" y="94" fill="#cbd5e1" font-family="Inter,Arial,sans-serif" font-size="15">A fast path from install to validated A2A task behavior</text>
+  <g font-family="Inter,Arial,sans-serif">
+    <rect x="48" y="130" width="198" height="220" rx="18" fill="#111827" stroke="#38bdf8"/>
+    <text x="74" y="170" fill="#e0f2fe" font-size="18" font-weight="700">1. Install</text>
+    <text x="74" y="210" fill="#cbd5e1" font-size="14">pnpm create a2amesh demo</text>
+    <text x="74" y="236" fill="#cbd5e1" font-size="14">cd demo</text>
+    <text x="74" y="262" fill="#cbd5e1" font-size="14">pnpm install</text>
+    <rect x="270" y="130" width="198" height="220" rx="18" fill="#111827" stroke="#34d399"/>
+    <text x="296" y="170" fill="#ecfdf5" font-size="18" font-weight="700">2. Run</text>
+    <text x="296" y="210" fill="#cbd5e1" font-size="14">pnpm run dev</text>
+    <text x="296" y="236" fill="#cbd5e1" font-size="14">open local agent URL</text>
+    <text x="296" y="262" fill="#cbd5e1" font-size="14">send sample task</text>
+    <rect x="492" y="130" width="198" height="220" rx="18" fill="#111827" stroke="#fbbf24"/>
+    <text x="518" y="170" fill="#fffbeb" font-size="18" font-weight="700">3. Validate</text>
+    <text x="518" y="210" fill="#cbd5e1" font-size="14">a2amesh validate card</text>
+    <text x="518" y="236" fill="#cbd5e1" font-size="14">a2amesh conformance</text>
+    <text x="518" y="262" fill="#cbd5e1" font-size="14">export report JSON</text>
+    <rect x="714" y="130" width="198" height="220" rx="18" fill="#111827" stroke="#a78bfa"/>
+    <text x="740" y="170" fill="#f5f3ff" font-size="18" font-weight="700">4. Observe</text>
+    <text x="740" y="210" fill="#cbd5e1" font-size="14">registry health</text>
+    <text x="740" y="236" fill="#cbd5e1" font-size="14">task transitions</text>
+    <text x="740" y="262" fill="#cbd5e1" font-size="14">copy CLI equivalent</text>
+  </g>
+</svg>

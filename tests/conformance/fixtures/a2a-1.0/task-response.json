@@ -1,0 +1,38 @@
+{
+  "id": "task-a2a-1-0",
+  "contextId": "ctx-a2a-1-0",
+  "status": {
+    "state": "COMPLETED",
+    "timestamp": "2026-05-24T12:00:01Z"
+  },
+  "history": [
+    {
+      "kind": "message",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "type": "text",
+          "text": "hello from a2a 1.0"
+        }
+      ],
+      "messageId": "msg-a2a-1-0-send",
+      "timestamp": "2026-05-24T12:00:00Z",
+      "contextId": "ctx-a2a-1-0"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "artifact-a2a-1-0-text",
+      "name": "A2A 1.0 echo result",
+      "description": "Text result generated from the message/send fixture.",
+      "index": 0,
+      "lastChunk": true,
+      "parts": [
+        {
+          "type": "text",
+          "text": "fixture result 1.0: {messageText}"
+        }
+      ]
+    }
+  ]
+}

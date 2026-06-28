@@ -1,0 +1,158 @@
+/**
+ * @file AnthropicAdapter.ts
+ * Anthropic Claude Messages API adapter.
+ */
+
+import { BaseAdapter } from '@a2amesh/internal-adapter-base';
+import { isAgentMessage, logger, normalizeAgentCard } from '@a2amesh/runtime';
+import type { AnyAgentCard, Artifact, Message, Task } from '@a2amesh/runtime';
+import {
+  createTextArtifact,
+  extractRequiredText,
+  extractText,
+} from '@a2amesh/internal-adapter-base';
+
+interface AnthropicContentTextBlock {
+  type: 'text';
+  text: string;
+}
+
+interface AnthropicContentToolUseBlock {
+  type: 'tool_use';
+  id: string;
+  name: string;
+  input: Record<string, unknown>;
+}
+
+type AnthropicContentBlock = AnthropicContentTextBlock | AnthropicContentToolUseBlock;
+
+interface AnthropicMessageResponse {
+  content: AnthropicContentBlock[];
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+  };
+}
+
+interface AnthropicTextDeltaEvent {
+  type: 'content_block_delta';
+  delta: {
+    type: 'text_delta';
+    text: string;
+  };
+}
+
+interface AnthropicClientLike {
+  messages: {
+    create(
+      payload: Record<string, unknown>,
+    ): Promise<AnthropicMessageResponse> | AsyncIterable<AnthropicTextDeltaEvent>;
+  };
+}
+
+/**
+ * Adapter for Anthropic Claude Messages-compatible runtimes.
+ *
+ * @since 1.0.0
+ */
+export class AnthropicAdapter extends BaseAdapter {
+  constructor(
+    card: AnyAgentCard,
+    private readonly client: AnthropicClientLike,
+    private readonly model = 'claude-opus-4-6',
+    private readonly systemPrompt?: string,
+    private readonly maxTokens = 4096,
+  ) {
+    super(normalizeAgentCard(card));
+  }
+
+  async handleTask(task: Task, message: Message): Promise<Artifact[]> {
+    logger.info('Anthropic processing task', {
+      taskId: task.id,
+      ...(task.contextId ? { contextId: task.contextId } : {}),
+    });
+
+    const messages = task.history
+      .filter((entry) => entry.messageId !== message.messageId)
+      .map((entry) => ({
+        role: isAgentMessage(entry) ? 'assistant' : 'user',
+        content: extractText(entry.parts),
+      }))
+      .filter((entry) => entry.content.length > 0);
+
+    const currentText = extractRequiredText(message.parts, 'Anthropic');
+    messages.push({
+      role: isAgentMessage(message) ? 'assistant' : 'user',
+      content: currentText,
+    });
+
+    const streamRequested = task.metadata?.['stream'] === true;
+
+    if (streamRequested) {
+      const stream = (await this.client.messages.create({
+        model: this.model,
+        max_tokens: this.maxTokens,
+        system: this.systemPrompt,
+        messages,
+        stream: true,
+      })) as AsyncIterable<AnthropicTextDeltaEvent>;
+      let streamedText = '';
+      for await (const event of stream) {
+        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+          streamedText += event.delta.text;
+        }
+      }
+      const artifact = createTextArtifact(task, {
+        artifactId: `anthropic-${Date.now()}`,
+        name: 'Anthropic Stream Response',
+        description: 'Result produced by Anthropic Claude stream',
+        text: streamedText,
+        provider: 'anthropic',
+        model: this.model,
+        compatibility: 'stable',
+        streamed: true,
+        supportsStreaming: true,
+        metadata: {
+          streamed: true,
+        },
+      }) as Artifact;
+      return [artifact];
+    }
+
+    const response = (await this.client.messages.create({
+      model: this.model,
+      max_tokens: this.maxTokens,
+      system: this.systemPrompt,
+      messages,
+    })) as AnthropicMessageResponse;
+
+    const outputText = response.content
+      .filter((block) => block.type === 'text')
+      .map((block) => block.text)
+      .join('\n');
+    const toolUses = response.content
+      .filter((block) => block.type === 'tool_use')
+      .map((block) => ({
+        id: block.id,
+        name: block.name,
+        input: block.input,
+      }));
+
+    const artifact = createTextArtifact(task, {
+      artifactId: `anthropic-${Date.now()}`,
+      name: 'Anthropic Response',
+      description: 'Result produced by Anthropic Claude',
+      text: outputText || JSON.stringify(toolUses, null, 2),
+      provider: 'anthropic',
+      model: this.model,
+      compatibility: 'stable',
+      supportsStreaming: true,
+      metadata: {
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+        toolUses,
+      },
+    }) as Artifact;
+    return [artifact];
+  }
+}

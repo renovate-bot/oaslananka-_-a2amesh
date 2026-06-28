@@ -1,0 +1,66 @@
+{
+  "$id": "https://oaslananka.github.io/a2amesh/schemas/json-rpc.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "id": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "null" }] },
+        "jsonrpc": { "const": "2.0", "type": "string" },
+        "method": { "type": "string" },
+        "params": {
+          "anyOf": [
+            { "additionalProperties": {}, "propertyNames": { "type": "string" }, "type": "object" },
+            { "items": {}, "type": "array" }
+          ]
+        }
+      },
+      "required": ["jsonrpc", "method"],
+      "type": "object"
+    },
+    {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "id": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "null" }] },
+            "jsonrpc": { "const": "2.0", "type": "string" },
+            "result": {}
+          },
+          "required": ["jsonrpc", "id", "result"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "error": {
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "data": {},
+                "message": { "type": "string" }
+              },
+              "required": ["code", "message"],
+              "type": "object"
+            },
+            "id": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "null" }] },
+            "jsonrpc": { "const": "2.0", "type": "string" }
+          },
+          "required": ["jsonrpc", "id", "error"],
+          "type": "object"
+        }
+      ]
+    }
+  ],
+  "description": "JSON-RPC 2.0 request and response envelopes used by A2A Mesh.",
+  "title": "A2A Mesh JSON-RPC Envelope",
+  "x-a2a-source": {
+    "schemaSymbol": "JsonRpcEnvelopeSchema",
+    "sourceFile": "packages/runtime/src/types/jsonrpc.ts",
+    "typeSymbol": "JsonRpcRequest | JsonRpcResponse"
+  }
+}

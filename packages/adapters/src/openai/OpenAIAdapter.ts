@@ -1,0 +1,78 @@
+/**
+ * @file OpenAIAdapter.ts
+ * Adapter wrapping modern OpenAI Chat/Responses API.
+ * Experimental: Supports textual input and output.
+ */
+
+import { BaseAdapter } from '../custom/BaseAdapter.js';
+import { isAgentMessage, logger, normalizeAgentCard } from '@a2amesh/runtime';
+import type { AnyAgentCard, Task, Message, Artifact } from '@a2amesh/runtime';
+import type OpenAI from 'openai';
+import { createTextArtifact, extractRequiredText, extractText } from '../custom/contract.js';
+
+export class OpenAIAdapter extends BaseAdapter {
+  private client: OpenAI;
+  private model: string;
+  private systemPrompt: string | undefined;
+
+  constructor(card: AnyAgentCard, client: OpenAI, model: string = 'gpt-4o', systemPrompt?: string) {
+    super(normalizeAgentCard(card));
+    this.client = client;
+    this.model = model;
+    this.systemPrompt = systemPrompt;
+  }
+
+  async handleTask(task: Task, message: Message): Promise<Artifact[]> {
+    logger.info(`OpenAI processing task ${task.id}`);
+
+    // Map A2A task history + current message to OpenAI Messages
+    const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+
+    if (this.systemPrompt) {
+      openAiMessages.push({ role: 'system', content: this.systemPrompt });
+    }
+
+    if (task.history) {
+      for (const histMsg of task.history) {
+        if (histMsg.messageId === message.messageId) continue;
+        const text = extractText(histMsg.parts);
+        if (text) {
+          openAiMessages.push({
+            role: isAgentMessage(histMsg) ? 'assistant' : 'user',
+            content: text,
+          });
+        }
+      }
+    }
+
+    const currentText = extractRequiredText(message.parts, 'OpenAI');
+
+    openAiMessages.push({
+      role: isAgentMessage(message) ? 'assistant' : 'user',
+      content: currentText,
+    });
+
+    const response = await this.client.chat.completions.create({
+      model: this.model,
+      messages: openAiMessages,
+    });
+
+    const outputContent = response.choices[0]?.message?.content;
+    if (!outputContent) {
+      throw new Error('OpenAI returned empty response');
+    }
+
+    const artifact = createTextArtifact(task, {
+      artifactId: `oai-art-${Date.now()}`,
+      name: 'OpenAI Response',
+      description: 'Result produced by OpenAI Chat API',
+      text: outputContent,
+      provider: 'openai',
+      model: this.model,
+      compatibility: 'stable',
+      supportsStreaming: false,
+    }) as Artifact;
+
+    return [artifact];
+  }
+}

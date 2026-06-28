@@ -1,0 +1,11 @@
+{
+  "pushNotificationConfig": {
+    "url": "http://localhost:0/a2a-webhook",
+    "token": "a2a-1-2-push-token",
+    "metadata": {
+      "fixture": "a2a-1.2",
+      "delivery": "task-snapshot"
+    }
+  },
+  "expectedToken": "a2a-1-2-push-token"
+}

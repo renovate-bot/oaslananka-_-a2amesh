@@ -1,0 +1,206 @@
+name: Publish
+
+'on':
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g., @a2amesh/runtime-v0.1.0-alpha.0)'
+        required: true
+      confirmation:
+        description: 'Type PUBLISH <tag> to confirm npm publication'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.tag }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: '24.16.0'
+  NPM_VERSION: '11.15.0'
+
+jobs:
+  publish:
+    name: Publish / npm
+    if: github.repository == 'oaslananka/a2amesh'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: npm-publish
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Resolve and confirm release tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG}"
+          if [[ -z "${TAG}" ]]; then
+            echo "No tag was provided"
+            exit 1
+          fi
+          if [[ "${INPUT_CONFIRMATION}" != "PUBLISH ${TAG}" ]]; then
+            echo "Confirmation must exactly match: PUBLISH ${TAG}"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: ${TAG}"
+
+      - name: Validate tag format and extract version
+        id: version
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${TAG}" =~ ^@a2amesh/runtime-v([0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?)$ ]]; then
+            echo "Tag '${TAG}' does not match expected format: @a2amesh/runtime-v<semver>"
+            echo "Example: @a2amesh/runtime-v0.1.0-alpha.0"
+            exit 1
+          fi
+          VERSION="${BASH_REMATCH[1]}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Tag validated: ${TAG} -> version ${VERSION}"
+
+      - name: Checkout publish workflow ref
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Release state guardrail
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-state.mjs --check
+
+      - name: Publish preflight
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/check-publish-preflight.mjs --tag "${TAG}" --expected-version "${EXPECTED_VERSION}"
+
+      - name: Validate package sources match tag
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git rev-parse "${TAG}^{commit}" >/dev/null
+          git diff --quiet "${TAG}" -- \
+            .release-please-manifest.json \
+            packages/cli \
+            packages \
+            pnpm-lock.yaml \
+            release-please-config.json
+
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm run lint:identity
+
+      - name: Install pinned npm
+        run: |
+          npm install -g "npm@${NPM_VERSION}"
+          echo "npm version: $(npm --version)"
+
+      - run: pnpm run build
+      - run: pnpm run typecheck
+      - run: pnpm run test
+      - run: pnpm run pack:dry-run
+
+      - name: Generate release artifacts
+        run: pnpm run release:artifacts
+
+      - name: Validate release artifact versions
+        env:
+          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          for pkg_file in .artifacts/npm/*.tgz; do
+            pkg_json="$(tar -xOzf "$pkg_file" package/package.json)"
+            pkg_name="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.name);" <<< "$pkg_json")"
+            pkg_version="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.version);" <<< "$pkg_json")"
+            echo "Artifact: ${pkg_name}@${pkg_version}"
+          done
+          node -e "const m=require('./.release-please-manifest.json'); const expected=process.env.EXPECTED_VERSION; for (const [path, version] of Object.entries(m)) { if (version !== expected) { console.error(path + ' manifest version ' + version + ' does not match tag ' + expected); process.exitCode = 1; } }"
+
+      - name: Check npm registry
+        run: |
+          set -euo pipefail
+          for pkg_file in ./.artifacts/npm/*.tgz; do
+            pkg_json="$(tar -xOzf "$pkg_file" package/package.json)"
+            pkg_name="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.name);" <<< "$pkg_json")"
+            pkg_version="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.version);" <<< "$pkg_json")"
+            if pnpm view "${pkg_name}@${pkg_version}" version --silent >/dev/null 2>&1; then
+              echo "Skipping ${pkg_name}@${pkg_version}: already exists on npm"
+            else
+              echo "Ready to publish ${pkg_name}@${pkg_version}"
+            fi
+          done
+
+      - name: Validate release artifacts
+        run: pnpm run release:validate
+
+      - name: Attest release artifacts
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-path: |
+            .artifacts/npm/*.tgz
+            .artifacts/npm/SHA256SUMS
+            .artifacts/sbom/a2amesh.cdx.json
+
+      - name: Publish packages to npm
+        run: |
+          set -euo pipefail
+          npm --version
+          for package_file in ./.artifacts/npm/*.tgz; do
+            pkg_json="$(tar -xOzf "$package_file" package/package.json)"
+            pkg_name="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.name);" <<< "$pkg_json")"
+            pkg_version="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.version);" <<< "$pkg_json")"
+
+            if npm view "${pkg_name}@${pkg_version}" version --silent >/dev/null 2>&1; then
+              echo "Skipping ${pkg_name}@${pkg_version}: already exists on npm"
+              continue
+            fi
+
+            npm publish "$package_file" --access public --provenance
+            echo "Published ${pkg_name}@${pkg_version} with provenance"
+          done
+
+      - name: Verify npm registry
+        run: |
+          set -euo pipefail
+          for package_file in "${GITHUB_WORKSPACE}"/.artifacts/npm/*.tgz; do
+            pkg_json="$(tar -xOzf "$package_file" package/package.json)"
+            pkg_name="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.name);" <<< "$pkg_json")"
+            pkg_version="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.version);" <<< "$pkg_json")"
+            for i in 1 2 3 4 5; do
+              if pnpm view "${pkg_name}@${pkg_version}" version --silent >/dev/null 2>&1; then
+                echo "${pkg_name}@${pkg_version} confirmed on npm"
+                break
+              fi
+              if [ "$i" -lt 5 ]; then
+                echo "${pkg_name}@${pkg_version} not yet visible (attempt $i/5); waiting 10s"
+                sleep 10
+              else
+                echo "${pkg_name}@${pkg_version} not found on npm after 5 retries"
+                exit 1
+              fi
+            done
+          done
+
+      - name: Wait for npm registry propagation
+        run: sleep 20
+
+      - name: Verify package registry parity
+        run: pnpm run release:parity

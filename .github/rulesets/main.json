@@ -1,0 +1,65 @@
+{
+  "name": "main-protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["~DEFAULT_BRANCH"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "required_linear_history" },
+    { "type": "required_signatures" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          { "context": "CI / identity" },
+          { "context": "CI / install" },
+          { "context": "CI / lint" },
+          { "context": "CI / typecheck" },
+          { "context": "CI / unit" },
+          { "context": "CI / integration" },
+          { "context": "CI / mutation" },
+          { "context": "CI / ui-e2e" },
+          { "context": "CI / build" },
+          { "context": "CI / package-dry-run" },
+          { "context": "CI / workspace-graph" },
+          { "context": "CI / public-surface" },
+          { "context": "CI / command-surface" },
+          { "context": "CI / no-generated-artifacts" },
+          { "context": "CI / compatibility-smoke (ubuntu-latest, node 22.22.3)" },
+          { "context": "CI / compatibility-smoke (windows-latest, node 24.16.0)" },
+          { "context": "CI / compatibility-smoke (macos-latest, node 24.16.0)" },
+          { "context": "Docs / build" },
+          { "context": "Docs / links" },
+          { "context": "Docs / command-parity" },
+          { "context": "Security / gitleaks" },
+          { "context": "Security / audit" },
+          { "context": "Security / osv" },
+          { "context": "Security / zizmor" },
+          { "context": "Security / actionlint" },
+          { "context": "Security / dependency-license" },
+          { "context": "Dependency Review / review" },
+          { "context": "CodeQL / analyze" },
+          { "context": "Scorecard / scan" }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}

@@ -1,0 +1,11 @@
+{
+  "scenario": "registry-discovers-official-python",
+  "profile": "official-a2a-v1.0",
+  "client": "a2amesh-registry",
+  "server": "official-python-server",
+  "events": [
+    { "type": "agent-card", "name": "official-python-fixture", "protocolVersion": "1.0" },
+    { "type": "registry", "operation": "import" },
+    { "type": "registry", "operation": "discover" }
+  ]
+}

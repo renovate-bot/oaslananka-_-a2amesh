@@ -1,0 +1,12 @@
+{
+  "scenario": "python-client-to-warp-cancel",
+  "profile": "official-a2a-v1.0",
+  "client": "official-python-client",
+  "server": "a2amesh-server",
+  "events": [
+    { "type": "request", "method": "message/send", "configuration": { "returnImmediately": true } },
+    { "type": "task", "state": "TASK_STATE_SUBMITTED" },
+    { "type": "request", "method": "tasks/cancel" },
+    { "type": "task", "state": "TASK_STATE_CANCELED" }
+  ]
+}

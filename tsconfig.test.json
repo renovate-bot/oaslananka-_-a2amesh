@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@a2amesh/runtime": ["./packages/runtime/src/index.ts"],
+      "@a2amesh/internal-adapter-anthropic": ["./packages/adapter-anthropic/src/index.ts"],
+      "@a2amesh/internal-adapter-base": ["./packages/adapter-base/src/index.ts"],
+      "@a2amesh/internal-adapter-crewai": ["./packages/adapter-crewai/src/index.ts"],
+      "@a2amesh/internal-adapter-google-adk": ["./packages/adapter-google-adk/src/index.ts"],
+      "@a2amesh/internal-adapter-langchain": ["./packages/adapter-langchain/src/index.ts"],
+      "@a2amesh/internal-adapter-llamaindex": ["./packages/adapter-llamaindex/src/index.ts"],
+      "@a2amesh/internal-adapter-openai": ["./packages/adapter-openai/src/index.ts"],
+      "@a2amesh/internal-adapters": ["./packages/adapters/src/index.ts"],
+      "@a2amesh/internal-auth": ["./packages/auth/src/index.ts"],
+      "@a2amesh/mcp": ["./packages/mcp/src/index.ts"],
+      "@a2amesh/cli": ["./packages/cli/src/index.ts"],
+      "@a2amesh/protocol": ["./packages/protocol/src/index.ts"],
+      "@a2amesh/registry": ["./packages/registry/src/index.ts"],
+      "@a2amesh/internal-telemetry": ["./packages/telemetry/src/index.ts"],
+      "@a2amesh/internal-transport-grpc": ["./packages/transport-grpc/src/index.ts"],
+      "@a2amesh/internal-transport-ws": ["./packages/transport-ws/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/tests/**/*.ts",
+    "packages/cli/src/**/*.ts",
+    "packages/cli/tests/**/*.ts",
+    "examples/*/src/**/*.ts",
+    "examples/*/tests/**/*.ts",
+    "tests/**/*.ts",
+    "apps/registry-ui/tests/**/*.ts",
+    "apps/registry-ui/playwright.config.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,18 @@
+title = "a2amesh gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test fixtures and examples"
+paths = [
+  '''tests/.*''',
+  '''packages/testing/src/fixtures/.*''',
+  '''apps/demo/\.env\.example''',
+  '''\.env\.example''',
+  '''\.artifacts/.*''',
+]
+regexes = [
+  '''EXAMPLE_''',
+  '''test[-_]?(key|secret|token|password)''',
+]

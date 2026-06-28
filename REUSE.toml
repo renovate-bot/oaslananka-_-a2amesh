@@ -1,0 +1,76 @@
+version = 1
+SPDX-PackageName = "a2amesh"
+SPDX-PackageSupplier = "oaslananka <opensource@oaslananka.com>"
+SPDX-PackageDownloadLocation = "https://github.com/oaslananka/a2amesh"
+
+# Source code — TypeScript/JS and all structured config files
+[[annotations]]
+path = ["**.ts", "**.tsx", "**.js", "**.jsx", "**.mjs", "**.cjs", "**.json", "**.yml", "**.yaml", "**.toml"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Lock files
+[[annotations]]
+path = ["pnpm-lock.yaml", "package-lock.json", "**.lock"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# All Markdown files anywhere in the tree
+[[annotations]]
+path = ["**.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# GitHub and CI/CD config
+[[annotations]]
+path = [".github/**", ".husky/**", ".vscode/**", ".opencode/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Shell scripts
+[[annotations]]
+path = ["**.sh"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Docker files
+[[annotations]]
+path = ["**/Dockerfile", "**/docker-compose*.yml", "Dockerfile"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Root dotfiles and config files
+[[annotations]]
+path = [".editorconfig", ".gitattributes", ".gitignore", ".dockerignore", ".codespellrc",
+        ".markdownlint-cli2.jsonc", ".node-version", ".nvmrc", ".prettierignore", ".prettierrc",
+        ".git-blame-ignore-revs"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# HTML, CSS, SVG, PNG assets
+[[annotations]]
+path = ["**.html", "**.css", "**.svg", "**.png"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Test snapshots, Protocol Buffers, env examples
+[[annotations]]
+path = ["**/__snapshots__/**", "**/*.snap", "**.proto", "**/.env.example"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"
+
+# VitePress config (separate to cover the .mts that has copyright but no license)
+[[annotations]]
+path = "docs-site/.vitepress/config.mts"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025-2026 oaslananka"
+SPDX-License-Identifier = "Apache-2.0"

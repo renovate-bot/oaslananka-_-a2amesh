@@ -1,0 +1,3 @@
+[codespell]
+skip = pnpm-lock.yaml,dist,coverage,test-results,node_modules,.git
+ignore-words-list = crate

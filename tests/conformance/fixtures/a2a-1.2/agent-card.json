@@ -1,0 +1,51 @@
+{
+  "protocolVersion": "1.2",
+  "name": "A2A Mesh Conformance Agent 1.2",
+  "description": "Fixture-backed Agent2Agent protocol 1.2 conformance agent.",
+  "url": "http://localhost:0",
+  "documentationUrl": "https://a2a-protocol.org/latest/specification/",
+  "version": "1.2.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "stateTransitionHistory": true,
+    "extendedAgentCard": true
+  },
+  "supportedInterfaces": [
+    {
+      "url": "http://localhost:0",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.2"
+    },
+    {
+      "url": "http://localhost:0",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "echo-json",
+      "name": "Echo JSON",
+      "description": "Echoes text and structured conformance payloads.",
+      "tags": ["conformance", "echo", "json"],
+      "examples": ["Echo hello from A2A 1.2"]
+    }
+  ],
+  "extensions": [
+    {
+      "uri": "https://a2amesh.test/extensions/conformance/v1",
+      "version": "1.0.0",
+      "required": false
+    }
+  ],
+  "signatures": [
+    {
+      "algorithm": "EdDSA",
+      "keyId": "fixture-key-a2a-1-2",
+      "jws": "fixture.signature.value"
+    }
+  ]
+}

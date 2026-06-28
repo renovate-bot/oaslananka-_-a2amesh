@@ -1,0 +1,238 @@
+import { describe, expect, it } from 'vitest';
+import { SqliteTaskStorage } from '../src/storage/SqliteTaskStorage.js';
+import type { Task } from '../src/types/task.js';
+
+interface FakeSqliteStatement<TRow = unknown> {
+  run(...params: unknown[]): { changes: number };
+  get(...params: unknown[]): TRow | undefined;
+  all(...params: unknown[]): TRow[];
+}
+
+interface StoredTaskRow {
+  contextId: string | null;
+  taskJson: string;
+}
+
+interface FakeTaskJsonRow {
+  task_json: string;
+}
+
+interface FakePushNotificationRow {
+  config_json: string;
+}
+
+class FakeDatabase {
+  readonly executedSql: string[] = [];
+  readonly tasks = new Map<string, StoredTaskRow>();
+  readonly pushNotifications = new Map<string, string>();
+  closed = false;
+
+  exec(sql: string): void {
+    this.executedSql.push(sql);
+  }
+
+  prepare<TRow = unknown>(sql: string): FakeSqliteStatement<TRow> {
+    return new FakeStatement<TRow>(this, sql);
+  }
+
+  close(): void {
+    this.closed = true;
+  }
+
+  run(sql: string, params: unknown[]): { changes: number } {
+    if (sql.startsWith('INSERT INTO tasks')) {
+      const id = String(params[0]);
+      const contextId = typeof params[1] === 'string' ? params[1] : null;
+      this.tasks.set(id, {
+        contextId,
+        taskJson: String(params[2]),
+      });
+      return { changes: 1 };
+    }
+
+    if (sql.startsWith('UPDATE tasks')) {
+      const id = String(params[2]);
+      if (!this.tasks.has(id)) {
+        return { changes: 0 };
+      }
+      this.tasks.set(id, {
+        contextId: typeof params[0] === 'string' ? params[0] : null,
+        taskJson: String(params[1]),
+      });
+      return { changes: 1 };
+    }
+
+    if (sql.startsWith('INSERT INTO push_notifications')) {
+      this.pushNotifications.set(String(params[0]), String(params[1]));
+      return { changes: 1 };
+    }
+
+    if (sql.startsWith('DELETE FROM push_notifications WHERE task_id')) {
+      return { changes: this.pushNotifications.delete(String(params[0])) ? 1 : 0 };
+    }
+
+    if (sql.startsWith('DELETE FROM tasks WHERE id')) {
+      return { changes: this.tasks.delete(String(params[0])) ? 1 : 0 };
+    }
+
+    if (sql === 'DELETE FROM push_notifications') {
+      const changes = this.pushNotifications.size;
+      this.pushNotifications.clear();
+      return { changes };
+    }
+
+    if (sql === 'DELETE FROM tasks') {
+      const changes = this.tasks.size;
+      this.tasks.clear();
+      return { changes };
+    }
+
+    throw new Error(`Unexpected SQL run: ${sql}`);
+  }
+
+  get(sql: string, params: unknown[]): unknown {
+    if (sql.startsWith('SELECT task_json FROM tasks WHERE id')) {
+      const row = this.tasks.get(String(params[0]));
+      return row ? ({ task_json: row.taskJson } satisfies FakeTaskJsonRow) : undefined;
+    }
+
+    if (sql.startsWith('SELECT config_json FROM push_notifications')) {
+      const config = this.pushNotifications.get(String(params[0]));
+      return config ? ({ config_json: config } satisfies FakePushNotificationRow) : undefined;
+    }
+
+    if (sql.startsWith('SELECT COUNT(*) AS count FROM tasks')) {
+      return { count: this.tasks.size };
+    }
+
+    throw new Error(`Unexpected SQL get: ${sql}`);
+  }
+
+  all(sql: string, params: unknown[]): unknown[] {
+    if (sql.startsWith('SELECT task_json FROM tasks WHERE context_id')) {
+      const contextId = String(params[0]);
+      return [...this.tasks.entries()]
+        .filter(([, row]) => row.contextId === contextId)
+        .sort(([leftId], [rightId]) => leftId.localeCompare(rightId))
+        .map(([, row]) => ({ task_json: row.taskJson }) satisfies FakeTaskJsonRow);
+    }
+
+    if (sql.startsWith('SELECT task_json FROM tasks ORDER BY id')) {
+      return [...this.tasks.entries()]
+        .sort(([leftId], [rightId]) => leftId.localeCompare(rightId))
+        .map(([, row]) => ({ task_json: row.taskJson }) satisfies FakeTaskJsonRow);
+    }
+
+    throw new Error(`Unexpected SQL all: ${sql}`);
+  }
+}
+
+class FakeStatement<TRow> implements FakeSqliteStatement<TRow> {
+  constructor(
+    private readonly database: FakeDatabase,
+    private readonly sql: string,
+  ) {}
+
+  run(...params: unknown[]): { changes: number } {
+    return this.database.run(this.sql, params);
+  }
+
+  get(...params: unknown[]): TRow | undefined {
+    return this.database.get(this.sql, params) as TRow | undefined;
+  }
+
+  all(...params: unknown[]): TRow[] {
+    return this.database.all(this.sql, params) as TRow[];
+  }
+}
+
+function createTask(id: string, contextId?: string): Task {
+  return {
+    kind: 'task',
+    id,
+    status: {
+      state: 'SUBMITTED',
+      timestamp: new Date().toISOString(),
+    },
+    history: [],
+    artifacts: [],
+    metadata: {},
+    extensions: [],
+    ...(contextId ? { contextId } : {}),
+  };
+}
+
+describe('SqliteTaskStorage', () => {
+  it('persists tasks, context lookups and push notification configuration with an injected driver', () => {
+    const FakeDatabaseConstructor = class extends FakeDatabase {
+      static readonly instances: FakeDatabase[] = [];
+
+      constructor(readonly path: string) {
+        super();
+        FakeDatabaseConstructor.instances.push(this);
+      }
+    };
+
+    const storage = new SqliteTaskStorage(':memory:', FakeDatabaseConstructor);
+    const database = FakeDatabaseConstructor.instances[0];
+    if (!database) {
+      throw new Error('Expected fake database to be constructed');
+    }
+    expect(database.executedSql.join('\n')).toContain('CREATE TABLE IF NOT EXISTS tasks');
+
+    const inserted = storage.insertTask(createTask('task-1', 'ctx-1'));
+
+    inserted.metadata = { mutated: true };
+    expect(storage.getTask('task-1')?.metadata).toEqual({});
+    expect(storage.getTask('missing')).toBeUndefined();
+
+    const storedTask = storage.getTask('task-1');
+    if (!storedTask) {
+      throw new Error('Expected stored task to exist');
+    }
+
+    storedTask.contextId = 'ctx-2';
+    storedTask.status.state = 'WORKING';
+    storage.saveTask(storedTask);
+    storage.saveTask(createTask('missing'));
+
+    expect(storage.getTasksByContextId('ctx-1')).toEqual([]);
+    expect(storage.getTasksByContextId('ctx-2')).toHaveLength(1);
+    expect(storage.getAllTasks()).toEqual([
+      expect.objectContaining({
+        id: 'task-1',
+        contextId: 'ctx-2',
+        status: expect.objectContaining({ state: 'WORKING' }),
+      }),
+    ]);
+
+    expect(
+      storage.setPushNotification('missing', { url: 'https://example.com/missing' }),
+    ).toBeUndefined();
+
+    const config = storage.setPushNotification('task-1', {
+      url: 'https://example.com/hook',
+      token: 'secret',
+    });
+
+    expect(config).toEqual({
+      url: 'https://example.com/hook',
+      token: 'secret',
+    });
+    expect(storage.getPushNotification('task-1')).toEqual(config);
+    expect(storage.getPushNotification('missing')).toBeUndefined();
+
+    expect(storage.count()).toBe(1);
+    expect(storage.deleteTask('missing')).toBe(false);
+    expect(storage.deleteTask('task-1')).toBe(true);
+    expect(storage.getTask('task-1')).toBeUndefined();
+    expect(storage.getPushNotification('task-1')).toBeUndefined();
+
+    storage.insertTask(createTask('task-2'));
+    storage.clear();
+    expect(storage.count()).toBe(0);
+
+    storage.close();
+    expect(database.closed).toBe(true);
+  });
+});

@@ -1,0 +1,21 @@
+dist/
+coverage/
+.artifacts/
+.codex-checkpoints/
+node_modules/
+*.min.js
+package-lock.json
+pnpm-lock.yaml
+CHANGELOG.md
+**/CHANGELOG.md
+docs-site/.vitepress/cache/
+docs-site/.vitepress/dist/
+docs-site/.vitepress/.temp/
+apps/registry-ui/playwright-report/
+apps/registry-ui/test-results/
+
+# Audit files
+docs/audits/
+
+# IDE / tool config
+.serena/

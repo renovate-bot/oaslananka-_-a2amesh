@@ -1,0 +1,31 @@
+{
+  "protocolVersion": "1.0",
+  "name": "A2A Mesh Conformance Agent 1.0",
+  "description": "Fixture-backed Agent2Agent protocol 1.0 conformance agent.",
+  "url": "http://localhost:0",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "stateTransitionHistory": true,
+    "extendedAgentCard": true
+  },
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "echo",
+      "name": "Echo",
+      "description": "Echoes conformance messages back as text artifacts.",
+      "tags": ["conformance", "echo"],
+      "examples": ["Echo hello from A2A 1.0"]
+    }
+  ],
+  "extensions": [
+    {
+      "uri": "https://a2amesh.test/extensions/conformance/v1",
+      "version": "1.0.0",
+      "required": false
+    }
+  ]
+}

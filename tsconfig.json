@@ -1,0 +1,71 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/adapter-anthropic"
+    },
+    {
+      "path": "./packages/adapter-base"
+    },
+    {
+      "path": "./packages/adapter-crewai"
+    },
+    {
+      "path": "./packages/adapter-google-adk"
+    },
+    {
+      "path": "./packages/adapter-langchain"
+    },
+    {
+      "path": "./packages/adapter-llamaindex"
+    },
+    {
+      "path": "./packages/adapter-openai"
+    },
+    {
+      "path": "./packages/adapters"
+    },
+    {
+      "path": "./packages/auth"
+    },
+    {
+      "path": "./packages/cli"
+    },
+    {
+      "path": "./packages/create-a2amesh"
+    },
+    {
+      "path": "./packages/fleet"
+    },
+    {
+      "path": "./packages/mcp"
+    },
+    {
+      "path": "./packages/protocol"
+    },
+    {
+      "path": "./packages/registry"
+    },
+    {
+      "path": "./packages/runtime"
+    },
+    {
+      "path": "./packages/telemetry"
+    },
+    {
+      "path": "./packages/transport-grpc"
+    },
+    {
+      "path": "./packages/transport-ws"
+    },
+    {
+      "path": "./packages/worker-runtime"
+    },
+    {
+      "path": "./apps/demo"
+    },
+    {
+      "path": "./apps/registry-ui"
+    }
+  ]
+}

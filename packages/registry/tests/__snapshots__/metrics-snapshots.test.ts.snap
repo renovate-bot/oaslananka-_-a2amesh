@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`registry metrics snapshots > snapshots stable Prometheus counters and gauges > registry metrics summary 1`] = `
+{
+  "activeTenants": 1,
+  "agentCount": 1,
+  "healthyAgents": 1,
+  "heartbeats": 1,
+  "publicAgents": 1,
+  "registrations": 1,
+  "searches": 1,
+  "unhealthyAgents": 0,
+  "unknownAgents": 0,
+}
+`;
+
+exports[`registry metrics snapshots > snapshots stable Prometheus counters and gauges > registry prometheus metrics 1`] = `
+"# HELP a2a_registry_registrations_total Total agent registrations.
+# TYPE a2a_registry_registrations_total counter
+a2a_registry_registrations_total 1
+# HELP a2a_registry_searches_total Total registry searches.
+# TYPE a2a_registry_searches_total counter
+a2a_registry_searches_total 1
+# HELP a2a_registry_heartbeats_total Total registry heartbeats.
+# TYPE a2a_registry_heartbeats_total counter
+a2a_registry_heartbeats_total 1
+# HELP a2a_registry_agents Number of known agents.
+# TYPE a2a_registry_agents gauge
+a2a_registry_agents 1
+# HELP a2a_registry_healthy_agents Number of healthy agents.
+# TYPE a2a_registry_healthy_agents gauge
+a2a_registry_healthy_agents 1
+# HELP a2a_registry_active_tenants Number of unique tenants with registered agents.
+# TYPE a2a_registry_active_tenants gauge
+a2a_registry_active_tenants 1
+# HELP a2a_registry_public_agents Number of public agents.
+# TYPE a2a_registry_public_agents gauge
+a2a_registry_public_agents 1"
+`;

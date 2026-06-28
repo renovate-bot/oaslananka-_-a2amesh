@@ -1,0 +1,77 @@
+{
+  "$id": "https://oaslananka.github.io/a2amesh/schemas/artifact.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Agent2Agent artifact payloads returned on tasks.",
+  "properties": {
+    "artifactId": { "type": "string" },
+    "description": { "type": "string" },
+    "extensions": { "items": { "type": "string" }, "type": "array" },
+    "index": { "maximum": 9007199254740991, "minimum": 0, "type": "integer" },
+    "lastChunk": { "type": "boolean" },
+    "metadata": {
+      "additionalProperties": {},
+      "propertyNames": { "type": "string" },
+      "type": "object"
+    },
+    "name": { "type": "string" },
+    "parts": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string" },
+              "type": { "const": "text", "type": "string" }
+            },
+            "required": ["type", "text"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "file": {
+                "additionalProperties": false,
+                "properties": {
+                  "bytes": { "type": "string" },
+                  "mimeType": { "type": "string" },
+                  "name": { "type": "string" },
+                  "uri": { "type": "string" }
+                },
+                "required": ["mimeType"],
+                "type": "object"
+              },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["type", "file"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "additionalProperties": {},
+                "propertyNames": { "type": "string" },
+                "type": "object"
+              },
+              "type": { "const": "data", "type": "string" }
+            },
+            "required": ["type", "data"],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "principalId": { "type": "string" },
+    "tenantId": { "type": "string" }
+  },
+  "required": ["artifactId", "parts", "index"],
+  "title": "A2A Mesh Artifact",
+  "type": "object",
+  "x-a2a-source": {
+    "schemaSymbol": "ExtensibleArtifactSchema",
+    "sourceFile": "packages/runtime/src/types/task.ts",
+    "typeSymbol": "ExtensibleArtifact"
+  }
+}

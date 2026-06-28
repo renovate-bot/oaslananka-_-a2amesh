@@ -1,0 +1,33 @@
+{
+  "jsonrpc": "2.0",
+  "id": "send-a2a-1-0",
+  "method": "message/send",
+  "params": {
+    "message": {
+      "kind": "message",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "type": "text",
+          "text": "hello from a2a 1.0"
+        }
+      ],
+      "messageId": "msg-a2a-1-0-send",
+      "timestamp": "2026-05-24T12:00:00Z",
+      "contextId": "ctx-a2a-1-0"
+    },
+    "sessionId": "session-a2a-1-0",
+    "contextId": "ctx-a2a-1-0",
+    "configuration": {
+      "blocking": true,
+      "acceptedOutputModes": ["text/plain"],
+      "extensions": [
+        {
+          "uri": "https://a2amesh.test/extensions/conformance/v1",
+          "version": "1.0.0",
+          "required": false
+        }
+      ]
+    }
+  }
+}

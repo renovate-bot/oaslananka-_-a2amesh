@@ -1,0 +1,21 @@
+name: Documentation
+description: Report unclear, stale, or missing documentation.
+labels: ['documentation', 'triage']
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page or file
+      placeholder: docs/quickstart.md
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What needs to change?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected documentation

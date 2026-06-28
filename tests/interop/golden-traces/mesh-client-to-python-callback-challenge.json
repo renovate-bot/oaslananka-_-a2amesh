@@ -1,0 +1,17 @@
+{
+  "scenario": "warp-client-to-python-callback-challenge",
+  "profile": "official-a2a-v1.0",
+  "client": "a2amesh-client",
+  "server": "official-python-server",
+  "events": [
+    { "type": "request", "method": "tasks/pushNotificationConfig/create" },
+    { "type": "task", "state": "TASK_STATE_SUBMITTED" },
+    { "type": "task", "state": "TASK_STATE_AUTH_REQUIRED" },
+    {
+      "type": "request",
+      "method": "message/send",
+      "configuration": { "returnImmediately": false }
+    },
+    { "type": "task", "state": "TASK_STATE_COMPLETED" }
+  ]
+}

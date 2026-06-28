@@ -1,0 +1,11 @@
+{
+  "scenario": "registry-discovers-official-js",
+  "profile": "official-a2a-v1.0",
+  "client": "a2amesh-registry",
+  "server": "official-js-server",
+  "events": [
+    { "type": "agent-card", "name": "official-js-fixture", "protocolVersion": "1.0" },
+    { "type": "registry", "operation": "import" },
+    { "type": "registry", "operation": "discover" }
+  ]
+}

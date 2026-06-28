@@ -1,0 +1,78 @@
+/**
+ * @file LangChainAdapter.ts
+ * Adapter wrapping a LangChain JS v1 runnable / compiled graph.
+ * Experimental: Maps task history to LangChain messages and invokes the runnable.
+ */
+
+import { BaseAdapter } from '../custom/BaseAdapter.js';
+import { isAgentMessage, logger, normalizeAgentCard } from '@a2amesh/runtime';
+import type { AnyAgentCard, Artifact, Message, Task } from '@a2amesh/runtime';
+import { createTextArtifact, extractRequiredText, extractText } from '../custom/contract.js';
+
+export interface LangChainRunnable {
+  invoke(input: unknown, options?: unknown): Promise<unknown>;
+}
+
+interface LangChainInvokeResult {
+  content?: string;
+  messages?: Array<{
+    content?: string;
+  }>;
+}
+
+export class LangChainAdapter extends BaseAdapter {
+  private runnable: LangChainRunnable;
+
+  constructor(card: AnyAgentCard, runnable: LangChainRunnable) {
+    super(normalizeAgentCard(card));
+    this.runnable = runnable;
+  }
+
+  async handleTask(task: Task, message: Message): Promise<Artifact[]> {
+    logger.info(`LangChain processing task ${task.id}`);
+
+    const messages: Array<{ role: 'assistant' | 'user'; content: string }> = [];
+
+    for (const histMsg of task.history) {
+      if (histMsg.messageId === message.messageId) {
+        continue;
+      }
+      const text = extractText(histMsg.parts);
+      if (text) {
+        messages.push({
+          role: isAgentMessage(histMsg) ? 'assistant' : 'user',
+          content: text,
+        });
+      }
+    }
+
+    const currentText = extractRequiredText(message.parts, 'LangChain');
+
+    messages.push({ role: isAgentMessage(message) ? 'assistant' : 'user', content: currentText });
+
+    // Assuming the modern LangChain/LangGraph runnable takes a list of messages directly
+    // or an object with a messages property.
+    const result = (await this.runnable.invoke({ messages })) as string | LangChainInvokeResult;
+
+    // Simulate mapping output string back to A2A Artifact
+    const outputString =
+      typeof result === 'string'
+        ? result
+        : result?.content
+          ? result.content
+          : result?.messages && Array.isArray(result.messages) && result.messages.length > 0
+            ? (result.messages[result.messages.length - 1]?.content ?? JSON.stringify(result))
+            : JSON.stringify(result);
+
+    const artifact = createTextArtifact(task, {
+      artifactId: `lc-art-${Date.now()}`,
+      name: 'LangChain Output',
+      description: 'Result produced by LangChain agent',
+      text: outputString,
+      provider: 'langchain',
+      compatibility: 'stable',
+      supportsStreaming: false,
+    }) as Artifact;
+    return [artifact];
+  }
+}

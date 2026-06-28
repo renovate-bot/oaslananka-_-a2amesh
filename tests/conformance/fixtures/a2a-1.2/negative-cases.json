@@ -1,0 +1,94 @@
+[
+  {
+    "name": "batch requests are explicitly unsupported",
+    "request": [
+      {
+        "jsonrpc": "2.0",
+        "id": "batch-a2a-1-2",
+        "method": "message/send",
+        "params": {
+          "message": {
+            "kind": "message",
+            "role": "ROLE_USER",
+            "parts": [
+              {
+                "type": "text",
+                "text": "batch is unsupported"
+              }
+            ],
+            "messageId": "msg-a2a-1-2-batch",
+            "timestamp": "2026-05-24T13:02:00+03:00"
+          }
+        }
+      }
+    ],
+    "expectedError": {
+      "code": -32600,
+      "message": "Batch requests are not supported"
+    }
+  },
+  {
+    "name": "malformed message payload returns InvalidParams",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "invalid-params-a2a-1-2",
+      "method": "message/send",
+      "params": {
+        "message": {}
+      }
+    },
+    "expectedError": {
+      "code": -32602,
+      "message": "Invalid parameters"
+    }
+  },
+  {
+    "name": "unsupported required extension returns ExtensionRequired",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "required-extension-a2a-1-2",
+      "method": "message/send",
+      "params": {
+        "message": {
+          "kind": "message",
+          "role": "ROLE_USER",
+          "parts": [
+            {
+              "type": "text",
+              "text": "requires unsupported extension"
+            }
+          ],
+          "messageId": "msg-a2a-1-2-required-extension",
+          "timestamp": "2026-05-24T13:03:00+03:00"
+        },
+        "configuration": {
+          "extensions": [
+            {
+              "uri": "https://a2amesh.test/extensions/not-supported/v1",
+              "version": "1.0.0",
+              "required": true
+            }
+          ]
+        }
+      }
+    },
+    "expectedError": {
+      "code": -32041
+    }
+  },
+  {
+    "name": "unknown task returns TaskNotFound",
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "missing-task-a2a-1-2",
+      "method": "tasks/get",
+      "params": {
+        "taskId": "missing-a2a-1-2-task"
+      }
+    },
+    "expectedError": {
+      "code": -32004,
+      "message": "Task not found"
+    }
+  }
+]

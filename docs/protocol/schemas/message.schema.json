@@ -1,0 +1,73 @@
+{
+  "$id": "https://oaslananka.github.io/a2amesh/schemas/message.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Agent2Agent message payloads accepted by A2A Mesh.",
+  "properties": {
+    "contextId": { "type": "string" },
+    "kind": { "const": "message", "type": "string" },
+    "messageId": { "type": "string" },
+    "parts": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string" },
+              "type": { "const": "text", "type": "string" }
+            },
+            "required": ["type", "text"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "file": {
+                "additionalProperties": false,
+                "properties": {
+                  "bytes": { "type": "string" },
+                  "mimeType": { "type": "string" },
+                  "name": { "type": "string" },
+                  "uri": { "type": "string" }
+                },
+                "required": ["mimeType"],
+                "type": "object"
+              },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["type", "file"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "additionalProperties": {},
+                "propertyNames": { "type": "string" },
+                "type": "object"
+              },
+              "type": { "const": "data", "type": "string" }
+            },
+            "required": ["type", "data"],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "role": { "enum": ["ROLE_USER", "ROLE_AGENT"], "type": "string" },
+    "timestamp": {
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+      "type": "string"
+    }
+  },
+  "required": ["role", "parts", "messageId", "timestamp"],
+  "title": "A2A Mesh Message",
+  "type": "object",
+  "x-a2a-source": {
+    "schemaSymbol": "MessageSchema",
+    "sourceFile": "packages/runtime/src/types/task.ts",
+    "typeSymbol": "Message"
+  }
+}

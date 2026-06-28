@@ -1,0 +1,12 @@
+{
+  "scenario": "warp-client-to-js-stream",
+  "profile": "official-a2a-v1.0",
+  "client": "a2amesh-client",
+  "server": "official-js-server",
+  "events": [
+    { "type": "request", "method": "message/stream", "headers": { "A2A-Extensions": "streaming" } },
+    { "type": "stream", "state": "TASK_STATE_SUBMITTED" },
+    { "type": "stream", "state": "TASK_STATE_WORKING" },
+    { "type": "stream", "state": "TASK_STATE_COMPLETED" }
+  ]
+}

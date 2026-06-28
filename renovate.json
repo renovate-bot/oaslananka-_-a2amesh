@@ -1,0 +1,64 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    "group:monorepos",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "timezone": "Europe/Istanbul",
+  "labels": ["area:deps"],
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 6,
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "labels": ["area:deps", "type:breaking"]
+    },
+    {
+      "matchPackageNames": ["/^@a2amesh\\//", "create-a2amesh"],
+      "enabled": false
+    },
+    {
+      "groupName": "vitest monorepo",
+      "matchPackageNames": ["vitest", "/^@vitest\\//"]
+    },
+    {
+      "groupName": "hono monorepo",
+      "matchPackageNames": ["hono", "@hono/node-server"]
+    },
+    {
+      "groupName": "opentelemetry",
+      "matchPackageNames": ["/^@opentelemetry\\//"]
+    },
+    {
+      "description": "Keep registry UI dependency updates visible as one workspace-scoped PR.",
+      "groupName": "registry UI dependencies",
+      "matchFileNames": ["apps/registry-ui/**"]
+    },
+    {
+      "description": "Keep docs site dependency updates visible as one workspace-scoped PR.",
+      "groupName": "docs site dependencies",
+      "matchFileNames": ["docs-site/**"]
+    },
+    {
+      "matchManagers": ["github-actions", "dockerfile", "docker-compose"],
+      "pinDigests": true,
+      "automerge": false,
+      "labels": ["area:deps", "area:ci"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["area:deps", "type:security"]
+  },
+  "osvVulnerabilityAlerts": true
+}

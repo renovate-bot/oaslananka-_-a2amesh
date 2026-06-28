@@ -1,0 +1,843 @@
+{
+  "components": {
+    "parameters": {
+      "AgentIdPath": {
+        "description": "Registry agent id.",
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": { "minLength": 1, "type": "string" }
+      },
+      "LimitQuery": {
+        "description": "Maximum number of recent task events to return.",
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "schema": { "minimum": 1, "type": "integer" }
+      },
+      "McpCompatibleQuery": {
+        "description": "Filter agents by MCP compatibility.",
+        "in": "query",
+        "name": "mcpCompatible",
+        "required": false,
+        "schema": { "type": "boolean" }
+      },
+      "NameQuery": {
+        "description": "Filter agents by agent card name.",
+        "in": "query",
+        "name": "name",
+        "required": false,
+        "schema": { "type": "string" }
+      },
+      "PublicQuery": {
+        "description": "When true, return only public agents and allow anonymous reads.",
+        "in": "query",
+        "name": "public",
+        "required": false,
+        "schema": { "type": "boolean" }
+      },
+      "SkillQuery": {
+        "description": "Filter agents by skill name.",
+        "in": "query",
+        "name": "skill",
+        "required": false,
+        "schema": { "type": "string" }
+      },
+      "StatusQuery": {
+        "description": "Filter agents by health status.",
+        "in": "query",
+        "name": "status",
+        "required": false,
+        "schema": { "$ref": "#/components/schemas/AgentStatus" }
+      },
+      "TagQuery": {
+        "description": "Filter agents by skill tag.",
+        "in": "query",
+        "name": "tag",
+        "required": false,
+        "schema": { "type": "string" }
+      },
+      "TransportQuery": {
+        "description": "Filter agents by transport.",
+        "in": "query",
+        "name": "transport",
+        "required": false,
+        "schema": { "$ref": "#/components/schemas/AgentTransport" }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        },
+        "description": "Request validation failed."
+      },
+      "Forbidden": {
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        },
+        "description": "The caller cannot access the requested resource."
+      },
+      "NotFound": {
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        },
+        "description": "The requested resource was not found."
+      },
+      "RateLimited": {
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RateLimitErrorResponse" }
+          }
+        },
+        "description": "The request was rejected by rate limiting."
+      },
+      "Unauthorized": {
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/AuthErrorResponse" } }
+        },
+        "description": "Control-plane authentication failed."
+      },
+      "ValidationError": {
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ValidationErrorResponse" }
+          }
+        },
+        "description": "The import document or request body failed validation."
+      }
+    },
+    "schemas": {
+      "AgentCard": {
+        "additionalProperties": true,
+        "properties": {
+          "capabilities": { "additionalProperties": true, "type": "object" },
+          "defaultInputModes": { "items": { "type": "string" }, "type": "array" },
+          "defaultOutputModes": { "items": { "type": "string" }, "type": "array" },
+          "description": { "type": "string" },
+          "documentationUrl": { "format": "uri", "type": "string" },
+          "extensions": {
+            "items": { "additionalProperties": true, "type": "object" },
+            "type": "array"
+          },
+          "iconUrl": { "format": "uri", "type": "string" },
+          "modelHints": { "items": { "type": "string" }, "type": "array" },
+          "name": { "type": "string" },
+          "protocolBinding": { "type": "string" },
+          "protocolVersion": { "enum": ["0.3", "1.0", "1.2"], "type": "string" },
+          "provider": {
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "format": "uri", "type": "string" }
+            },
+            "required": ["name", "url"],
+            "type": "object"
+          },
+          "security": {
+            "items": {
+              "additionalProperties": { "items": { "type": "string" }, "type": "array" },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "securitySchemes": {
+            "items": { "additionalProperties": true, "type": "object" },
+            "type": "array"
+          },
+          "signatures": {
+            "items": { "additionalProperties": true, "type": "object" },
+            "type": "array"
+          },
+          "signedAt": { "format": "date-time", "type": "string" },
+          "skills": { "items": { "$ref": "#/components/schemas/AgentSkill" }, "type": "array" },
+          "supportedInterfaces": {
+            "items": { "additionalProperties": true, "type": "object" },
+            "type": "array"
+          },
+          "transport": { "$ref": "#/components/schemas/AgentTransport" },
+          "url": { "format": "uri", "type": "string" },
+          "version": { "type": "string" }
+        },
+        "required": ["protocolVersion", "name", "description", "url", "version"],
+        "type": "object"
+      },
+      "AgentSkill": {
+        "additionalProperties": true,
+        "properties": {
+          "description": { "type": "string" },
+          "examples": { "items": { "type": "string" }, "type": "array" },
+          "id": { "type": "string" },
+          "inputModes": { "items": { "type": "string" }, "type": "array" },
+          "name": { "type": "string" },
+          "outputModes": { "items": { "type": "string" }, "type": "array" },
+          "tags": { "items": { "type": "string" }, "type": "array" }
+        },
+        "required": ["id", "name", "description"],
+        "type": "object"
+      },
+      "AgentStatus": { "enum": ["healthy", "unhealthy", "unknown"], "type": "string" },
+      "AgentTransport": { "enum": ["http", "sse", "ws", "grpc"], "type": "string" },
+      "AuthErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "error": { "enum": ["Unauthorized"], "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "required": ["error"],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": true,
+        "properties": { "error": { "type": "string" } },
+        "required": ["error"],
+        "type": "object"
+      },
+      "RateLimitErrorResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "error": {
+            "additionalProperties": true,
+            "properties": { "message": { "enum": ["Too Many Requests"], "type": "string" } },
+            "required": ["message"],
+            "type": "object"
+          }
+        },
+        "required": ["error"],
+        "type": "object"
+      },
+      "RegisterAgentRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "agentCard": { "$ref": "#/components/schemas/AgentCard" },
+          "agentUrl": { "format": "uri", "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "tenantId": { "type": "string" }
+        },
+        "required": ["agentUrl", "agentCard"],
+        "type": "object"
+      },
+      "RegisteredAgent": {
+        "additionalProperties": false,
+        "properties": {
+          "card": { "$ref": "#/components/schemas/AgentCard" },
+          "consecutiveFailures": { "minimum": 0, "type": "integer" },
+          "id": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "lastHeartbeatAt": { "format": "date-time", "type": "string" },
+          "lastSuccessAt": { "format": "date-time", "type": "string" },
+          "registeredAt": { "format": "date-time", "type": "string" },
+          "skills": { "items": { "type": "string" }, "type": "array" },
+          "status": { "$ref": "#/components/schemas/AgentStatus" },
+          "tags": { "items": { "type": "string" }, "type": "array" },
+          "tenantId": { "type": "string" },
+          "url": { "format": "uri", "type": "string" }
+        },
+        "required": ["id", "url", "card", "status", "tags", "skills", "registeredAt"],
+        "type": "object"
+      },
+      "RegistryAgentEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "agent": { "$ref": "#/components/schemas/RegisteredAgent" },
+          "type": { "enum": ["registered", "heartbeat", "imported", "updated"], "type": "string" }
+        },
+        "required": ["type", "agent"],
+        "type": "object"
+      },
+      "RegistryDeletedEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["deleted"], "type": "string" }
+        },
+        "required": ["type", "id"],
+        "type": "object"
+      },
+      "RegistryEvent": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/RegistryAgentEvent" },
+          { "$ref": "#/components/schemas/RegistryDeletedEvent" }
+        ]
+      },
+      "RegistryExportDocument": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "const": "https://oaslananka.github.io/a2amesh/schemas/registry-export.schema.json",
+            "type": "string"
+          },
+          "agents": {
+            "items": { "$ref": "#/components/schemas/RegisteredAgent" },
+            "type": "array"
+          },
+          "exportedAt": { "format": "date-time", "type": "string" },
+          "metadata": { "$ref": "#/components/schemas/RegistryExportMetadata" },
+          "schemaVersion": { "const": "1", "type": "string" }
+        },
+        "required": ["$schema", "schemaVersion", "exportedAt", "agents", "metadata"],
+        "type": "object"
+      },
+      "RegistryExportMetadata": {
+        "additionalProperties": true,
+        "properties": {
+          "agentCount": { "minimum": 0, "type": "integer" },
+          "publicAgents": { "minimum": 0, "type": "integer" },
+          "source": { "const": "a2amesh-registry", "type": "string" },
+          "tenants": { "items": { "type": "string" }, "type": "array" }
+        },
+        "required": ["source", "agentCount", "tenants", "publicAgents"],
+        "type": "object"
+      },
+      "RegistryHealth": {
+        "additionalProperties": false,
+        "properties": {
+          "agents": { "minimum": 0, "type": "integer" },
+          "healthyAgents": { "minimum": 0, "type": "integer" },
+          "status": { "enum": ["ok"], "type": "string" }
+        },
+        "required": ["status", "agents", "healthyAgents"],
+        "type": "object"
+      },
+      "RegistryImportResult": {
+        "additionalProperties": false,
+        "properties": {
+          "imported": { "minimum": 0, "type": "integer" },
+          "skipped": { "minimum": 0, "type": "integer" },
+          "total": { "minimum": 0, "type": "integer" },
+          "updated": { "minimum": 0, "type": "integer" }
+        },
+        "required": ["imported", "updated", "skipped", "total"],
+        "type": "object"
+      },
+      "RegistryMetricsSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "activeTenants": { "minimum": 0, "type": "integer" },
+          "agentCount": { "minimum": 0, "type": "integer" },
+          "healthyAgents": { "minimum": 0, "type": "integer" },
+          "heartbeats": { "minimum": 0, "type": "integer" },
+          "publicAgents": { "minimum": 0, "type": "integer" },
+          "registrations": { "minimum": 0, "type": "integer" },
+          "searches": { "minimum": 0, "type": "integer" },
+          "unhealthyAgents": { "minimum": 0, "type": "integer" },
+          "unknownAgents": { "minimum": 0, "type": "integer" }
+        },
+        "required": [
+          "registrations",
+          "searches",
+          "heartbeats",
+          "agentCount",
+          "healthyAgents",
+          "unhealthyAgents",
+          "unknownAgents",
+          "activeTenants",
+          "publicAgents"
+        ],
+        "type": "object"
+      },
+      "RegistryTaskEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "agentId": { "type": "string" },
+          "agentName": { "type": "string" },
+          "agentUrl": { "format": "uri", "type": "string" },
+          "artifactCount": { "minimum": 0, "type": "integer" },
+          "contextId": { "type": "string" },
+          "historyCount": { "minimum": 0, "type": "integer" },
+          "status": { "type": "string" },
+          "summary": { "type": "string" },
+          "task": { "additionalProperties": true, "type": "object" },
+          "taskId": { "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" }
+        },
+        "required": [
+          "taskId",
+          "agentId",
+          "agentName",
+          "agentUrl",
+          "status",
+          "updatedAt",
+          "historyCount",
+          "artifactCount",
+          "task"
+        ],
+        "type": "object"
+      },
+      "ValidationErrorResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "error": { "type": "string" },
+          "issues": { "items": { "$ref": "#/components/schemas/ValidationIssue" }, "type": "array" }
+        },
+        "required": ["error"],
+        "type": "object"
+      },
+      "ValidationIssue": {
+        "additionalProperties": false,
+        "properties": { "message": { "type": "string" }, "path": { "type": "string" } },
+        "required": ["path", "message"],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "registry token or JWT",
+        "description": "Control-plane bearer authentication configured by registrationToken or auth middleware.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "A2A Mesh registry package documentation",
+    "url": "https://github.com/oaslananka/a2amesh/tree/main/docs/packages/registry.md"
+  },
+  "info": {
+    "description": "Machine-readable contract for A2A Mesh registry discovery, control-plane, metrics, and event-stream endpoints.",
+    "license": { "identifier": "Apache-2.0", "name": "Apache-2.0" },
+    "title": "A2A Mesh Registry API",
+    "version": "1.0.0"
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "openapi": "3.1.0",
+  "paths": {
+    "/admin/agents/{id}": {
+      "delete": {
+        "operationId": "adminDeleteRegistryAgent",
+        "responses": {
+          "204": { "description": "Agent deleted." },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Delete a registered agent through the admin route alias.",
+        "tags": ["Admin", "Agents"]
+      },
+      "parameters": [{ "$ref": "#/components/parameters/AgentIdPath" }]
+    },
+    "/admin/agents/{id}/heartbeat": {
+      "parameters": [{ "$ref": "#/components/parameters/AgentIdPath" }],
+      "post": {
+        "operationId": "adminHeartbeatRegistryAgent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegisteredAgent" } }
+            },
+            "description": "Updated registered agent."
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Mark a registered agent healthy through the admin route alias.",
+        "tags": ["Admin", "Agents"]
+      }
+    },
+    "/admin/agents/export": {
+      "get": {
+        "operationId": "exportRegistryAgents",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegistryExportDocument" }
+              }
+            },
+            "description": "Registry export document."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Export registered agents as a registry export document.",
+        "tags": ["Admin"]
+      }
+    },
+    "/admin/agents/import": {
+      "post": {
+        "operationId": "importRegistryAgents",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegistryExportDocument" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegistryImportResult" }
+              }
+            },
+            "description": "Registry import result."
+          },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Import registered agents from a registry export document.",
+        "tags": ["Admin"]
+      }
+    },
+    "/admin/agents/register": {
+      "post": {
+        "operationId": "adminRegisterRegistryAgent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterAgentRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegisteredAgent" } }
+            },
+            "description": "The registered agent record."
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Register or update an agent through the admin route alias.",
+        "tags": ["Admin", "Agents"]
+      }
+    },
+    "/agents": {
+      "get": {
+        "description": "When public=true is supplied this endpoint returns public agents without control-plane authentication. Otherwise it requires the registry control-plane bearer token or JWT middleware.",
+        "operationId": "listRegistryAgents",
+        "parameters": [{ "$ref": "#/components/parameters/PublicQuery" }],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/RegisteredAgent" },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Registered agents visible to the caller."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }, {}],
+        "summary": "List registered agents.",
+        "tags": ["Agents"]
+      }
+    },
+    "/agents/{id}": {
+      "delete": {
+        "operationId": "deleteRegistryAgent",
+        "responses": {
+          "204": { "description": "Agent deleted." },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Delete a registered agent by id.",
+        "tags": ["Agents"]
+      },
+      "get": {
+        "description": "Public agents can be fetched without authentication. Private agents require control-plane authentication and tenant access.",
+        "operationId": "getRegistryAgent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegisteredAgent" } }
+            },
+            "description": "Registered agent."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }, {}],
+        "summary": "Fetch a registered agent by id.",
+        "tags": ["Agents"]
+      },
+      "parameters": [{ "$ref": "#/components/parameters/AgentIdPath" }]
+    },
+    "/agents/{id}/heartbeat": {
+      "parameters": [{ "$ref": "#/components/parameters/AgentIdPath" }],
+      "post": {
+        "operationId": "heartbeatRegistryAgent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegisteredAgent" } }
+            },
+            "description": "Updated registered agent."
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Mark a registered agent healthy and refresh heartbeat metadata.",
+        "tags": ["Agents"]
+      }
+    },
+    "/agents/register": {
+      "post": {
+        "operationId": "registerRegistryAgent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterAgentRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegisteredAgent" } }
+            },
+            "description": "The registered agent record."
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Register or update an agent in the registry.",
+        "tags": ["Agents"]
+      }
+    },
+    "/agents/search": {
+      "get": {
+        "description": "At least one filter is required. Public searches may omit authentication when public=true is supplied.",
+        "operationId": "searchRegistryAgents",
+        "parameters": [
+          { "$ref": "#/components/parameters/SkillQuery" },
+          { "$ref": "#/components/parameters/TagQuery" },
+          { "$ref": "#/components/parameters/NameQuery" },
+          { "$ref": "#/components/parameters/TransportQuery" },
+          { "$ref": "#/components/parameters/StatusQuery" },
+          { "$ref": "#/components/parameters/McpCompatibleQuery" },
+          { "$ref": "#/components/parameters/PublicQuery" }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/RegisteredAgent" },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Matching registered agents."
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }, {}],
+        "summary": "Search registered agents by capability or metadata.",
+        "tags": ["Agents"]
+      }
+    },
+    "/agents/stream": {
+      "get": {
+        "operationId": "streamRegistryAgents",
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "description": "Server-sent events whose data payload matches RegisteredAgent.",
+                  "type": "string"
+                },
+                "x-a2a-event-payload-schema": { "$ref": "#/components/schemas/RegisteredAgent" }
+              }
+            },
+            "description": "SSE stream containing normalized RegisteredAgent updates."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Stream authenticated normalized agent registry updates.",
+        "tags": ["Events", "Agents"]
+      }
+    },
+    "/events": {
+      "get": {
+        "operationId": "streamRegistryEvents",
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "description": "Server-sent events whose data payload matches RegistryEvent.",
+                  "type": "string"
+                },
+                "x-a2a-event-payload-schema": { "$ref": "#/components/schemas/RegistryEvent" }
+              }
+            },
+            "description": "SSE stream containing registry_update events."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Stream authenticated registry update events.",
+        "tags": ["Events"]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "getRegistryHealth",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RegistryHealth" } }
+            },
+            "description": "Registry health summary."
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "summary": "Return registry health and agent counts.",
+        "tags": ["Health"]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "getRegistryPrometheusMetrics",
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "examples": [
+                    "# HELP a2a_registry_registrations_total Total agent registrations.\n# TYPE a2a_registry_registrations_total counter\na2a_registry_registrations_total 1"
+                  ],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Prometheus metrics text."
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "summary": "Return registry metrics in Prometheus text exposition format.",
+        "tags": ["Metrics"]
+      }
+    },
+    "/metrics/summary": {
+      "get": {
+        "operationId": "getRegistryMetricsSummary",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegistryMetricsSummary" }
+              }
+            },
+            "description": "Registry metrics summary."
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "summary": "Return registry metrics as JSON for UI dashboards and contract tests.",
+        "tags": ["Metrics"]
+      }
+    },
+    "/tasks/recent": {
+      "get": {
+        "operationId": "listRecentRegistryTasks",
+        "parameters": [{ "$ref": "#/components/parameters/LimitQuery" }],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/RegistryTaskEvent" },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Recent task events."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Return recent task projection events.",
+        "tags": ["Tasks"]
+      }
+    },
+    "/tasks/stream": {
+      "get": {
+        "operationId": "streamRegistryTasks",
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "description": "Server-sent events whose data payload matches RegistryTaskEvent.",
+                  "type": "string"
+                },
+                "x-a2a-event-payload-schema": { "$ref": "#/components/schemas/RegistryTaskEvent" }
+              }
+            },
+            "description": "SSE stream containing RegistryTaskEvent payloads."
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Stream recent and future task projection events.",
+        "tags": ["Tasks", "Events"]
+      }
+    }
+  },
+  "servers": [{ "description": "Local registry server", "url": "http://localhost:3000" }],
+  "tags": [
+    { "description": "Registry health checks.", "name": "Health" },
+    { "description": "Registry metrics for monitoring systems and dashboards.", "name": "Metrics" },
+    {
+      "description": "Agent registration, discovery, lookup, heartbeat, and deletion.",
+      "name": "Agents"
+    },
+    { "description": "Server-sent event streams for registry and task changes.", "name": "Events" },
+    { "description": "Recent task projections and task update streams.", "name": "Tasks" },
+    { "description": "Authenticated export and import control-plane operations.", "name": "Admin" }
+  ]
+}

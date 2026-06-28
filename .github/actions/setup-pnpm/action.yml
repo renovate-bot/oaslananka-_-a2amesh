@@ -1,0 +1,72 @@
+name: Setup pnpm
+description: Configure Node.js, Corepack, pnpm store caching, and optional frozen install.
+
+inputs:
+  node-version:
+    description: Node.js version to install.
+    required: true
+  registry-url:
+    description: Optional npm registry URL for publishing workflows.
+    required: false
+    default: ''
+  install:
+    description: Run pnpm install --frozen-lockfile after cache restore.
+    required: false
+    default: 'true'
+  cache:
+    description: Restore and save the pnpm store cache.
+    required: false
+    default: 'true'
+
+outputs:
+  node-version:
+    description: Resolved Node.js version from actions/setup-node.
+    value: ${{ steps.setup-node.outputs.node-version }}
+  pnpm-version:
+    description: Resolved pnpm version.
+    value: ${{ steps.pnpm-store.outputs.pnpm_version }}
+  pnpm-store-path:
+    description: Resolved pnpm store path.
+    value: ${{ steps.pnpm-store.outputs.store_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      id: setup-node
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
+        package-manager-cache: false
+
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
+
+    - name: Resolve pnpm store
+      id: pnpm-store
+      shell: bash
+      run: |
+        pnpm_version="$(pnpm --version)"
+        store_path="$(pnpm store path --silent)"
+        {
+          echo "pnpm_version=${pnpm_version}"
+          echo "store_path=${store_path}"
+        } >> "${GITHUB_OUTPUT}"
+
+    - name: Cache pnpm store
+      if: ${{ inputs.cache == 'true' }}
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ${{ steps.pnpm-store.outputs.store_path }}
+        key: pnpm-store-${{ runner.os }}-node-${{ steps.setup-node.outputs.node-version }}-pnpm-${{ steps.pnpm-store.outputs.pnpm_version }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-store-${{ runner.os }}-node-${{ steps.setup-node.outputs.node-version }}-pnpm-${{ steps.pnpm-store.outputs.pnpm_version }}-
+          pnpm-store-${{ runner.os }}-node-${{ steps.setup-node.outputs.node-version }}-
+          pnpm-store-${{ runner.os }}-
+
+    - name: Install dependencies
+      if: ${{ inputs.install == 'true' }}
+      shell: bash
+      run: pnpm install --frozen-lockfile

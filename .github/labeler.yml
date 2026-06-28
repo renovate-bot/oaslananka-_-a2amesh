@@ -1,0 +1,79 @@
+'pkg:runtime':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/runtime/**'
+
+'pkg:adapters':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/adapters/**'
+
+'pkg:registry':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/registry/**'
+
+'pkg:transport-ws':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/transport-ws/**'
+
+'pkg:cli':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/cli/**'
+
+'pkg:transport-grpc':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/transport-grpc/**'
+
+'pkg:mcp':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/mcp/**'
+
+'pkg:testing':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/runtime/src/testing/**'
+
+'pkg:protocol':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/protocol/**'
+
+'area:apps':
+  - changed-files:
+      - any-glob-to-any-file: 'apps/**'
+
+'area:docs':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - 'docs-site/**'
+          - '*.md'
+
+'area:ci':
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+
+'area:deployments':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'deploy/**'
+          - 'compose.yaml'
+          - 'apps/demo/Dockerfile'
+
+'area:security':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'packages/runtime/src/auth/**'
+          - 'packages/runtime/src/security/**'
+          - 'packages/runtime/src/middleware/**'
+
+'area:deps':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'pnpm-lock.yaml'
+          - 'package.json'
+          - '**/package.json'
+
+'area:tests':
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tests/**'
+          - '**/*.test.ts'
+          - '**/*.spec.ts'

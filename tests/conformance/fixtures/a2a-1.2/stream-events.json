@@ -1,0 +1,33 @@
+{
+  "jsonrpc": "2.0",
+  "id": "stream-a2a-1-2",
+  "method": "message/stream",
+  "params": {
+    "message": {
+      "kind": "message",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "type": "text",
+          "text": "stream a2a 1.2"
+        },
+        {
+          "type": "data",
+          "data": {
+            "stream": true
+          }
+        }
+      ],
+      "messageId": "msg-a2a-1-2-stream",
+      "timestamp": "2026-05-24T13:01:00+03:00",
+      "contextId": "ctx-a2a-1-2-stream"
+    },
+    "sessionId": "session-a2a-1-2-stream",
+    "contextId": "ctx-a2a-1-2-stream",
+    "configuration": {
+      "acceptedOutputModes": ["text/plain", "application/json"]
+    }
+  },
+  "expectedTerminalState": "COMPLETED",
+  "expectedArtifactText": "stream a2a 1.2"
+}

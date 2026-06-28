@@ -1,0 +1,126 @@
+{
+  "name": "@a2amesh/runtime",
+  "version": "0.1.0-alpha.0",
+  "description": "A2A Mesh runtime, client, server, storage, auth, telemetry, and testing infrastructure for A2A-native agents.",
+  "keywords": [
+    "a2a",
+    "a2amesh",
+    "a2a-mesh",
+    "agent-to-agent",
+    "agents",
+    "runtime",
+    "typescript"
+  ],
+  "author": "oaslananka",
+  "license": "Apache-2.0",
+  "homepage": "https://oaslananka.github.io/a2amesh/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/a2amesh.git",
+    "directory": "packages/runtime"
+  },
+  "bugs": {
+    "url": "https://github.com/oaslananka/a2amesh/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "node ../../scripts/build-tsc-package.mjs",
+    "typecheck": "tsc -b",
+    "test": "vitest run --root ../.. --config vitest.config.ts --project unit packages/runtime/tests"
+  },
+  "dependencies": {
+    "@a2amesh/protocol": "workspace:^",
+    "@opentelemetry/api": "^1.9.1",
+    "eventsource": "^4.1.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "8.5.2",
+    "jose": "^6.2.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@opentelemetry/exporter-metrics-otlp-http": "0.219.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
+    "@opentelemetry/resources": "2.8.0",
+    "@opentelemetry/sdk-metrics": "2.8.0",
+    "@opentelemetry/sdk-node": "0.219.0",
+    "@types/express": "5.0.6",
+    "typescript": "6.0.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.1 <25"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.218.0 || ^0.219.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0 || ^0.219.0",
+    "@opentelemetry/resources": "^2.7.1",
+    "@opentelemetry/sdk-metrics": "^2.7.1",
+    "@opentelemetry/sdk-node": "^0.218.0 || ^0.219.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    },
+    "@opentelemetry/exporter-metrics-otlp-http": {
+      "optional": true
+    },
+    "@opentelemetry/exporter-trace-otlp-http": {
+      "optional": true
+    },
+    "@opentelemetry/resources": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-metrics": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-node": {
+      "optional": true
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware/index.d.ts",
+      "import": "./dist/middleware/index.js",
+      "default": "./dist/middleware/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/public.d.ts",
+      "import": "./dist/schemas/public.js",
+      "default": "./dist/schemas/public.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.js",
+      "default": "./dist/client/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    },
+    "./codex-bridge": {
+      "types": "./dist/codex-bridge/index.d.ts",
+      "import": "./dist/codex-bridge/index.js",
+      "default": "./dist/codex-bridge/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

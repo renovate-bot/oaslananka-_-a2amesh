@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "separate-pull-requests": false,
+  "plugins": [
+    {
+      "type": "node-workspace"
+    },
+    {
+      "type": "linked-versions",
+      "groupName": "A2A Mesh public packages",
+      "components": [
+        "@a2amesh/protocol",
+        "@a2amesh/runtime",
+        "@a2amesh/registry",
+        "@a2amesh/mcp",
+        "@a2amesh/cli",
+        "create-a2amesh"
+      ]
+    }
+  ],
+  "packages": {
+    "packages/protocol": {
+      "package-name": "@a2amesh/protocol",
+      "component": "@a2amesh/protocol",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/runtime": {
+      "package-name": "@a2amesh/runtime",
+      "component": "@a2amesh/runtime",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/registry": {
+      "package-name": "@a2amesh/registry",
+      "component": "@a2amesh/registry",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/mcp": {
+      "package-name": "@a2amesh/mcp",
+      "component": "@a2amesh/mcp",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/cli": {
+      "package-name": "@a2amesh/cli",
+      "component": "@a2amesh/cli",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/create-a2amesh": {
+      "package-name": "create-a2amesh",
+      "component": "create-a2amesh",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
