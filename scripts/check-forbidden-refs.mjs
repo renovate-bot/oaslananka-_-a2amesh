@@ -59,6 +59,7 @@ const hypePhrases = [
 ];
 const exactAllowed = 'It is not an official Google, Linux Foundation, or a2aproject package.';
 const ignored = [
+  /^AGENTS\.md$/,
   /^scripts\/check-.*\.mjs$/,
   /^pnpm-lock\.yaml$/,
   /^docs\/audits\//,

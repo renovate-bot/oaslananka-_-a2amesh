@@ -1,6 +1,8 @@
-import { getWorkspacePackages, fail } from './check-utils.mjs';
+import { readFileSync } from 'node:fs';
+import { getWorkspacePackages, fail, readJson } from './check-utils.mjs';
 
-const ALPHA_VERSION = '0.1.0-alpha.0';
+const ROOT_VERSION = '0.1.0-alpha.0';
+const MANIFEST = readJson('.release-please-manifest.json');
 const PUBLIC_PACKAGES = new Map([
   ['packages/protocol/package.json', '@a2amesh/protocol'],
   ['packages/runtime/package.json', '@a2amesh/runtime'],
@@ -26,8 +28,8 @@ if (!root) {
   if (root.name !== 'a2amesh-workspace') {
     failures.push(`package.json: expected name a2amesh-workspace, found ${String(root.name)}`);
   }
-  if (root.version !== ALPHA_VERSION) {
-    failures.push(`package.json: expected version ${ALPHA_VERSION}, found ${String(root.version)}`);
+  if (root.version !== ROOT_VERSION) {
+    failures.push(`package.json: expected version ${ROOT_VERSION}, found ${String(root.version)}`);
   }
   if (root.private !== true) failures.push('package.json: root workspace must be private');
 }
@@ -41,8 +43,10 @@ for (const [path, expectedName] of PUBLIC_PACKAGES) {
   if (manifest.name !== expectedName) {
     failures.push(`${path}: expected name ${expectedName}, found ${String(manifest.name)}`);
   }
-  if (manifest.version !== ALPHA_VERSION) {
-    failures.push(`${path}: expected version ${ALPHA_VERSION}, found ${String(manifest.version)}`);
+  const pkgDir = path.replace(/\/package\.json$/, '');
+  const expectedVersion = MANIFEST[pkgDir] ?? ROOT_VERSION;
+  if (manifest.version !== expectedVersion) {
+    failures.push(`${path}: expected version ${expectedVersion}, found ${String(manifest.version)}`);
   }
   if (manifest.private === true) failures.push(`${path}: approved public package must not be private`);
   if (manifest.publishConfig?.access !== 'public') {
