@@ -4,7 +4,7 @@
 
 A2A Mesh is an independent TypeScript monorepo for Agent2Agent-compatible runtime, client, registry, adapters, bridge packages, CLI, docs, and tests.
 
-Use `A2A Mesh` for human-facing project identity and `a2amesh` for machine names. Public packages are scoped under `@a2amesh/runtime*` except `create-a2amesh`.
+Use `A2A Mesh` for human-facing project identity and `a2amesh` for machine names. Public packages are scoped under `@a2amesh/*` except `create-a2amesh`.
 
 ## Setup
 
