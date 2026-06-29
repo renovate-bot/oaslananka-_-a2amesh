@@ -30,16 +30,16 @@ range and is already EOL in the Node.js project schedule checked for this policy
 
 ## Package Version Matrix
 
-All public packages in the `0.1.0-alpha.0` clean-start release line share the same Node engine range: `>=22.22.1 <25`.
+All public packages in the `0.2.0-alpha.0` release line share the same Node engine range: `>=22.22.1 <25`.
 
 | Package             | Current version | Node range      | Compatibility notes                                                         |
 | ------------------- | --------------- | --------------- | --------------------------------------------------------------------------- |
-| `@a2amesh/cli`      | `0.1.0-alpha.0` | `>=22.22.1 <25` | Published `a2amesh` command-line interface.                                 |
-| `@a2amesh/mcp`      | `0.1.0-alpha.0` | `>=22.22.1 <25` | A2A and MCP mapping helpers and bridge runtime.                             |
-| `@a2amesh/protocol` | `0.1.0-alpha.0` | `>=22.22.1 <25` | Protocol types, interfaces, constants, and validators.                      |
-| `@a2amesh/registry` | `0.1.0-alpha.0` | `>=22.22.1 <25` | Registry server, discovery, health, and storage helpers.                    |
-| `@a2amesh/runtime`  | `0.1.0-alpha.0` | `>=22.22.1 <25` | Core runtime, client/server APIs, task lifecycle, and telemetry/auth hooks. |
-| `create-a2amesh`    | `0.1.0-alpha.0` | `>=22.22.1 <25` | Project scaffolder.                                                         |
+| `@a2amesh/cli`      | `0.2.0-alpha.0` | `>=22.22.1 <25` | Published `a2amesh` command-line interface.                                 |
+| `@a2amesh/mcp`      | `0.2.0-alpha.0` | `>=22.22.1 <25` | A2A and MCP mapping helpers and bridge runtime.                             |
+| `@a2amesh/protocol` | `0.2.0-alpha.0` | `>=22.22.1 <25` | Protocol types, interfaces, constants, and validators.                      |
+| `@a2amesh/registry` | `0.2.0-alpha.0` | `>=22.22.1 <25` | Registry server, discovery, health, and storage helpers.                    |
+| `@a2amesh/runtime`  | `0.2.0-alpha.0` | `>=22.22.1 <25` | Core runtime, client/server APIs, task lifecycle, and telemetry/auth hooks. |
+| `create-a2amesh`    | `0.2.0-alpha.0` | `>=22.22.1 <25` | Project scaffolder.                                                         |
 
 Patch releases may add compatible bug fixes, tests, and docs. New public package
 surfaces must update `public-surface.json`, package docs, and this matrix before
@@ -76,7 +76,6 @@ Provider and framework SDKs stay peer dependencies where possible so default ins
 
 | Package            | Peer dependency                             | Supported range          |
 | ------------------ | ------------------------------------------- | ------------------------ |
-| `@a2amesh/runtime` | `@opentelemetry/api`                        | `^1.9.1`                 |
 | `@a2amesh/runtime` | `@opentelemetry/exporter-metrics-otlp-http` | `^0.218.0 \|\| ^0.219.0` |
 | `@a2amesh/runtime` | `@opentelemetry/exporter-trace-otlp-http`   | `^0.218.0 \|\| ^0.219.0` |
 | `@a2amesh/runtime` | `@opentelemetry/resources`                  | `^2.7.1`                 |
