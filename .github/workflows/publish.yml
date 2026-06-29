@@ -160,9 +160,14 @@ jobs:
             .artifacts/sbom/a2amesh.cdx.json
 
       - name: Publish packages to npm
+        env:
+          EXPECTED_VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
           npm --version
+          # derive npm dist-tag from the semver prerelease identifier
+          NPM_TAG="$(node -e "const v='${EXPECTED_VERSION}'; const i=v.indexOf('-'); process.stdout.write(i >= 0 ? v.slice(i + 1).split('.')[0] : 'latest');")"
+          echo "npm dist-tag: ${NPM_TAG}"
           for package_file in ./.artifacts/npm/*.tgz; do
             pkg_json="$(tar -xOzf "$package_file" package/package.json)"
             pkg_name="$(node -e "const p=JSON.parse(require('fs').readFileSync(0,'utf8'));process.stdout.write(p.name);" <<< "$pkg_json")"
@@ -173,8 +178,8 @@ jobs:
               continue
             fi
 
-            npm publish "$package_file" --access public --provenance
-            echo "Published ${pkg_name}@${pkg_version} with provenance"
+            npm publish "$package_file" --access public --provenance --tag "${NPM_TAG}"
+            echo "Published ${pkg_name}@${pkg_version} with provenance (tag: ${NPM_TAG})"
           done
 
       - name: Verify npm registry
