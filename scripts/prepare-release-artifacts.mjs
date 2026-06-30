@@ -95,7 +95,7 @@ await runPnpm([
   '--filter',
   '@a2amesh/cli',
   '--filter',
-  'create-a2amesh',
+  '@a2amesh/create-a2amesh',
   'pack',
   '--pack-destination',
   npmArtifactDir,

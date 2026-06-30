@@ -24,7 +24,7 @@
       "labels": ["area:deps", "type:breaking"]
     },
     {
-      "matchPackageNames": ["/^@a2amesh\\//", "create-a2amesh"],
+      "matchPackageNames": ["/^@a2amesh\\//"],
       "enabled": false
     },
     {

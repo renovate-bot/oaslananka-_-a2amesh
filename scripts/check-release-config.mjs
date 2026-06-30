@@ -7,7 +7,7 @@ const APPROVED_RELEASES = new Map([
   ['packages/registry', '@a2amesh/registry'],
   ['packages/mcp', '@a2amesh/mcp'],
   ['packages/cli', '@a2amesh/cli'],
-  ['packages/create-a2amesh', 'create-a2amesh'],
+  ['packages/create-a2amesh', '@a2amesh/create-a2amesh'],
 ]);
 
 const config = readJson('release-please-config.json');

@@ -10,7 +10,7 @@ const names = [
   '@a2amesh/internal-transport-ws',
   '@a2amesh/internal-transport-grpc',
   '@a2amesh/protocol',
-  'create-a2amesh',
+  '@a2amesh/create-a2amesh',
 ];
 const failures = [];
 for (const name of names) {

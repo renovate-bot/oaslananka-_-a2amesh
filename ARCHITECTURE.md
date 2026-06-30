@@ -17,16 +17,16 @@ package import graph is checked by `scripts/check-workspace-graph.mjs`.
 
 The primary workspace surfaces are:
 
-| Surface                                                                       | Role                                                                                                                                          |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@a2amesh/runtime`                                                        | Core runtime, protocol types, JSON-RPC server, client, auth, storage, telemetry, URL policy, schemas, testing helpers, and Codex-style tools. |
-| `@a2amesh/registry`                                               | Registry REST/SSE service, discovery, health polling, task projections, and registry storage.                                                 |
-| `@a2amesh/internal-adapters`                                               | Provider/framework adapters built on the public core runtime contract.                                                                        |
+| Surface                                                                 | Role                                                                                                                                          |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@a2amesh/runtime`                                                      | Core runtime, protocol types, JSON-RPC server, client, auth, storage, telemetry, URL policy, schemas, testing helpers, and Codex-style tools. |
+| `@a2amesh/registry`                                                     | Registry REST/SSE service, discovery, health polling, task projections, and registry storage.                                                 |
+| `@a2amesh/internal-adapters`                                            | Provider/framework adapters built on the public core runtime contract.                                                                        |
 | `@a2amesh/internal-transport-ws` and `@a2amesh/internal-transport-grpc` | Transport helpers that adapt the core runtime to WebSocket and gRPC contracts.                                                                |
-| `@a2amesh/mcp`                                             | Bridge package that maps public runtime objects into MCP tool surfaces.                                                                       |
-| `@a2amesh/protocol`                                                | Standalone JSON Schema files for editor, CI, and validation pipelines.                                                                        |
-| `@a2amesh/cli` and `create-a2amesh`                              | Command surface and scaffold generator.                                                                                                       |
-| `apps/*`, `docs-site`, and `examples/*`                                       | Demo, registry UI, VitePress site, and local runnable examples.                                                                               |
+| `@a2amesh/mcp`                                                          | Bridge package that maps public runtime objects into MCP tool surfaces.                                                                       |
+| `@a2amesh/protocol`                                                     | Standalone JSON Schema files for editor, CI, and validation pipelines.                                                                        |
+| `@a2amesh/cli` and `@a2amesh/create-a2amesh`                            | Command surface and scaffold generator.                                                                                                       |
+| `apps/*`, `docs-site`, and `examples/*`                                 | Demo, registry UI, VitePress site, and local runnable examples.                                                                               |
 
 ## Dependency Direction
 

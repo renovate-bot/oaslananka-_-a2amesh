@@ -43,7 +43,7 @@ const requiredPackages = [
   '@a2amesh/internal-transport-grpc',
   '@a2amesh/mcp',
   '@a2amesh/protocol',
-  'create-a2amesh',
+  '@a2amesh/create-a2amesh',
   '@a2amesh/cli',
   'a2amesh-demo',
   'a2amesh-registry-ui',

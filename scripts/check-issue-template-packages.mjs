@@ -17,7 +17,7 @@ const expected = [
   '@a2amesh/protocol',
   '@a2amesh/internal-transport-grpc',
   '@a2amesh/internal-transport-ws',
-  'create-a2amesh',
+  '@a2amesh/create-a2amesh',
   'Other',
 ];
 const text = readText('.github/ISSUE_TEMPLATE/bug_report.yml');

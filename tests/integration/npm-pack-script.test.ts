@@ -122,7 +122,7 @@ describe('check-npm-pack consumer smoke helpers', () => {
       getBinarySmokeCommand(
         {
           name: '@a2amesh/cli',
-          bin: { 'a2amesh': 'bin/a2amesh.js' },
+          bin: { a2amesh: 'bin/a2amesh.js' },
         },
         'a2amesh',
       ),
@@ -139,7 +139,7 @@ describe('check-npm-pack consumer smoke helpers', () => {
     expect(
       getBinarySmokeCommand(
         {
-          name: 'create-a2amesh',
+          name: '@a2amesh/create-a2amesh',
           bin: { 'create-a2amesh': 'bin/create-a2amesh.js' },
         },
         'create-a2amesh',

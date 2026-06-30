@@ -15,7 +15,7 @@
         "@a2amesh/registry",
         "@a2amesh/mcp",
         "@a2amesh/cli",
-        "create-a2amesh"
+        "@a2amesh/create-a2amesh"
       ]
     }
   ],
@@ -46,8 +46,8 @@
       "changelog-path": "CHANGELOG.md"
     },
     "packages/create-a2amesh": {
-      "package-name": "create-a2amesh",
-      "component": "create-a2amesh",
+      "package-name": "@a2amesh/create-a2amesh",
+      "component": "@a2amesh/create-a2amesh",
       "changelog-path": "CHANGELOG.md"
     }
   }

@@ -14,7 +14,7 @@ const ALLOWED_PUBLIC_PACKAGE_NAMES = new Set([
   '@a2amesh/registry',
   '@a2amesh/mcp',
   '@a2amesh/cli',
-  'create-a2amesh',
+  '@a2amesh/create-a2amesh',
 ]);
 
 const failures = [];

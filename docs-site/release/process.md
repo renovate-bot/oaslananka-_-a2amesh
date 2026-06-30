@@ -69,14 +69,14 @@ publisher identity:
 - Workflow: `publish.yml`
 - Environment: `npm-publish`
 
-| Package             | Path                      | Release mode                  | npm Trusted Publisher                                |
-| ------------------- | ------------------------- | ----------------------------- | ---------------------------------------------------- |
-| `@a2amesh/protocol` | `packages/protocol`       | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
-| `@a2amesh/runtime`  | `packages/runtime`        | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
-| `@a2amesh/registry` | `packages/registry`       | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
-| `@a2amesh/mcp`      | `packages/mcp`            | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
-| `@a2amesh/cli`      | `packages/cli`            | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
-| `create-a2amesh`    | `packages/create-a2amesh` | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| Package                   | Path                      | Release mode                  | npm Trusted Publisher                                |
+| ------------------------- | ------------------------- | ----------------------------- | ---------------------------------------------------- |
+| `@a2amesh/protocol`       | `packages/protocol`       | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| `@a2amesh/runtime`        | `packages/runtime`        | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| `@a2amesh/registry`       | `packages/registry`       | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| `@a2amesh/mcp`            | `packages/mcp`            | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| `@a2amesh/cli`            | `packages/cli`            | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
+| `@a2amesh/create-a2amesh` | `packages/create-a2amesh` | Release Please linked version | `oaslananka/a2amesh` / `publish.yml` / `npm-publish` |
 
 Internal/private packages (`@a2amesh/internal-*`) are **not** published to npm
 during the first alpha. They are not part of the Trusted Publisher configuration.
@@ -86,17 +86,12 @@ cannot read npm package Trusted Publisher settings without npm registry
 permissions. Maintainers must confirm the npm package settings match this matrix
 before the first publish or after any package rename.
 
-## Scoped and unscoped package permissions
+## Scoped package permissions
 
-Scoped packages under `@a2amesh/*` must be public packages in npm. Their
+All packages under `@a2amesh/*` must be public packages in npm. Their
 package manifests keep `publishConfig.access: public`, and the publish workflow
 uses `npm publish --access public --provenance` so first publish and republish
 use the same command path.
-
-`create-a2amesh` is intentionally unscoped for `pnpm create a2amesh`. It still
-uses the same Trusted Publisher identity and provenance flow. npm package
-ownership for this unscoped package must be restricted to trusted maintainers
-because scope-level permissions do not protect it.
 
 Do not add long-lived npm registry token secrets, fallback token publishing, or
 dist-tag mutation steps to the publish workflow.

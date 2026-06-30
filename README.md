@@ -56,7 +56,7 @@ pnpm add @a2amesh/runtime
 ## Quickstart
 
 ```bash
-pnpm create a2amesh demo
+pnpm create @a2amesh/create-a2amesh demo
 cd demo
 pnpm install
 pnpm run dev
@@ -65,7 +65,7 @@ pnpm run dev
 PowerShell:
 
 ```powershell
-pnpm create a2amesh demo
+pnpm create @a2amesh/create-a2amesh demo
 Set-Location demo
 pnpm install
 pnpm run dev
@@ -113,14 +113,14 @@ a2amesh doctor --json
 
 ## Package List
 
-| Package             | Purpose                                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------------------- |
-| `@a2amesh/protocol` | Protocol types, Agent Card, Task, Message, Artifact, JSON schemas, compatibility fixtures.        |
-| `@a2amesh/runtime`  | A2A client/server runtime, task lifecycle, streaming, push, auth hooks, storage, telemetry hooks. |
-| `@a2amesh/registry` | Agent discovery, health, trust score, signed cards, registry API.                                 |
-| `@a2amesh/mcp`      | Secure, auditable, approval-aware, policy-bound A2A ↔ MCP bridge.                                 |
-| `@a2amesh/cli`      | CLI binary `a2amesh`.                                                                             |
-| `create-a2amesh`    | Project scaffolder.                                                                               |
+| Package                   | Purpose                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------- |
+| `@a2amesh/protocol`       | Protocol types, Agent Card, Task, Message, Artifact, JSON schemas, compatibility fixtures.        |
+| `@a2amesh/runtime`        | A2A client/server runtime, task lifecycle, streaming, push, auth hooks, storage, telemetry hooks. |
+| `@a2amesh/registry`       | Agent discovery, health, trust score, signed cards, registry API.                                 |
+| `@a2amesh/mcp`            | Secure, auditable, approval-aware, policy-bound A2A ↔ MCP bridge.                                 |
+| `@a2amesh/cli`            | CLI binary `a2amesh`.                                                                             |
+| `@a2amesh/create-a2amesh` | Project scaffolder.                                                                               |
 
 ## A2A Protocol Compatibility
 

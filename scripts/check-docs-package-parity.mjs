@@ -6,7 +6,7 @@ const packages = [
   ['@a2amesh/cli', 'docs/packages/cli.md'],
   ['@a2amesh/mcp', 'docs/packages/mcp.md'],
   ['@a2amesh/protocol', 'docs/packages/protocol.md'],
-  ['create-a2amesh', 'docs/packages/create-a2amesh.md'],
+  ['@a2amesh/create-a2amesh', 'docs/packages/create-a2amesh.md'],
 ];
 const failures = [];
 const readme = readText('README.md');

@@ -1,6 +1,6 @@
-# create-a2amesh
+# @a2amesh/create-a2amesh
 
-`create-a2amesh` is the scaffolding package for rapidly bootstrapping new A2A Mesh projects and custom adapter runtimes.
+`@a2amesh/create-a2amesh` is the scaffolding package for rapidly bootstrapping new A2A Mesh projects and custom adapter runtimes.
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Run the initialization wizard directly via:
 npm create a2amesh
 ```
 
-This is equivalent to invoking `npm exec create-a2amesh` or running `a2amesh init` via the global CLI.
+This is equivalent to invoking `npm exec @a2amesh/create-a2amesh` or running `a2amesh init` via the global CLI.
 
 ## Release State
 

@@ -4,7 +4,7 @@
 
 A2A Mesh is an independent TypeScript monorepo for Agent2Agent-compatible runtime, client, registry, adapters, bridge packages, CLI, docs, and tests.
 
-Use `A2A Mesh` for human-facing project identity and `a2amesh` for machine names. Public packages are scoped under `@a2amesh/*` except `create-a2amesh`.
+Use `A2A Mesh` for human-facing project identity and `a2amesh` for machine names. All public packages are scoped under `@a2amesh/*`.
 
 ## Setup
 
@@ -39,7 +39,7 @@ pnpm run verify
 - `packages/registry/`: registry server, discovery, health, matching, and storage helpers.
 - `packages/mcp/`: A2A and MCP mapping helpers.
 - `packages/cli/`: `a2amesh` command-line interface.
-- `packages/create-a2amesh/`: `create-a2amesh` scaffolder.
+- `packages/create-a2amesh/`: `@a2amesh/create-a2amesh` scaffolder.
 - `packages/adapters/`: **deprecated** internal meta-package re-exporting per-provider adapter packages.
 - `packages/adapter-base/`: internal abstract base adapter and contract helpers.
 - `packages/adapter-openai/`: internal OpenAI Chat API adapter.

@@ -9,7 +9,7 @@ const PUBLIC_PACKAGES = new Map([
   ['packages/registry/package.json', '@a2amesh/registry'],
   ['packages/mcp/package.json', '@a2amesh/mcp'],
   ['packages/cli/package.json', '@a2amesh/cli'],
-  ['packages/create-a2amesh/package.json', 'create-a2amesh'],
+  ['packages/create-a2amesh/package.json', '@a2amesh/create-a2amesh'],
 ]);
 const REQUIRED_KEYWORDS = ['a2a', 'a2amesh', 'a2a-mesh', 'agent-to-agent', 'agents'];
 
@@ -98,7 +98,7 @@ for (const { path, dir, packageJson: manifest } of packages) {
       if (staleScopePattern.test(dependency)) {
         failures.push(`${path}: stale dependency ${dependency}`);
       }
-      if ((dependency.startsWith('@a2amesh/') || dependency === 'create-a2amesh') && !localNames.has(dependency)) {
+      if ((dependency.startsWith('@a2amesh/') || dependency === '@a2amesh/create-a2amesh') && !localNames.has(dependency)) {
         failures.push(`${path}: unknown local package dependency ${dependency}`);
       }
     }
@@ -106,8 +106,8 @@ for (const { path, dir, packageJson: manifest } of packages) {
   if (dir === 'packages/cli' && Object.keys(manifest.bin ?? {}).join(',') !== 'a2amesh') {
     failures.push(`${path}: CLI binary must be exactly a2amesh`);
   }
-  if (dir === 'packages/create-a2amesh' && manifest.name !== 'create-a2amesh') {
-    failures.push(`${path}: scaffold package must be create-a2amesh`);
+  if (dir === 'packages/create-a2amesh' && manifest.name !== '@a2amesh/create-a2amesh') {
+    failures.push(`${path}: scaffold package must be @a2amesh/create-a2amesh`);
   }
 }
 

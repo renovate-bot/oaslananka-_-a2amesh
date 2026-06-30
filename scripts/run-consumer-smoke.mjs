@@ -15,7 +15,7 @@
  *   2. Client     – import & instantiate A2AClient, call sendMessage
  *   3. Registry   – start registry server, register & query agents
  *   4. CLI        – a2amesh --version, --help, agent validate --help
- *   5. Scaffolder – create-a2amesh, verify output structure
+ *   5. Scaffolder – @a2amesh/create-a2amesh, verify output structure
  *   6. WS         – load @a2amesh/internal-transport-ws module
  *   7. gRPC       – load @a2amesh/internal-transport-grpc module
  *   8. MCP bridge – load @a2amesh/mcp module
@@ -91,7 +91,7 @@ const PACKAGES = [
   { name: '@a2amesh/runtime', dir: 'packages/runtime' },
   { name: '@a2amesh/registry', dir: 'packages/registry' },
   { name: '@a2amesh/cli', dir: 'packages/cli' },
-  { name: 'create-a2amesh', dir: 'packages/create-a2amesh' },
+  { name: '@a2amesh/create-a2amesh', dir: 'packages/create-a2amesh' },
   { name: '@a2amesh/internal-transport-ws', dir: 'packages/transport-ws' },
   { name: '@a2amesh/internal-transport-grpc', dir: 'packages/transport-grpc' },
   { name: '@a2amesh/mcp', dir: 'packages/mcp' },
@@ -342,7 +342,7 @@ await surf(
 // ── Surface 5: Scaffolder ────────────────────────────────────────
 const scaffDir = join(tempDir, 'scaff-test');
 await surf(
-  'scaffolder / create-a2amesh scaffolding',
+  'scaffolder / @a2amesh/create-a2amesh scaffolding',
   `
   import { execFileSync } from 'node:child_process';
   import { existsSync, readFileSync } from 'node:fs';
