@@ -1,21 +1,20 @@
 /**
  * @file InMemoryFleetStorage.ts
- * In-process `IFleetStorage` implementation. Suitable for a single-instance
- * Mission Control deployment; a durable backend (Postgres, Redis, SQLite —
- * matching the storage-swap pattern already established by
- * `@a2amesh/runtime`'s `ITaskStorage`) can implement the same interface
- * without touching `FleetControlPlaneServer`.
+ * In-process `IFleetStorage` implementation.
  */
 
+import type { FleetArtifactRecord } from '@a2amesh/internal-fleet';
 import type {
   FleetAuditEntry,
   FleetAuditListFilter,
   FleetRunListFilter,
   FleetRunPatch,
   FleetRunRecord,
+  FleetRunTransitionCondition,
+  FleetRunTransitionResult,
   IFleetStorage,
 } from './IFleetStorage.js';
-import type { FleetArtifactRecord } from '@a2amesh/internal-fleet';
+import { matchesRunExpectedState, matchesRunTargetState } from './runStateTransitions.js';
 
 export class InMemoryFleetStorage implements IFleetStorage {
   private readonly runs = new Map<string, FleetRunRecord>();
@@ -37,6 +36,7 @@ export class InMemoryFleetStorage implements IFleetStorage {
     return [...this.runs.values()]
       .filter((run) => (filter.status ? run.status === filter.status : true))
       .filter((run) => (filter.approvalState ? run.approvalState === filter.approvalState : true))
+      .filter((run) => matchesTenant(run.tenantId, filter.tenantId))
       .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
       .map((run) => ({ ...run }));
   }
@@ -47,6 +47,23 @@ export class InMemoryFleetStorage implements IFleetStorage {
     const updated = { ...run, ...patch };
     this.runs.set(id, updated);
     return { ...updated };
+  }
+
+  async transitionRun(
+    id: string,
+    expected: FleetRunTransitionCondition,
+    patch: FleetRunPatch,
+  ): Promise<FleetRunTransitionResult> {
+    const run = this.runs.get(id);
+    if (!run) return { outcome: 'not-found' };
+    if (!matchesRunExpectedState(run, expected)) {
+      return matchesRunTargetState(run, patch)
+        ? { outcome: 'unchanged', run: { ...run } }
+        : { outcome: 'conflict', run: { ...run } };
+    }
+    const updated = { ...run, ...patch };
+    this.runs.set(id, updated);
+    return { outcome: 'updated', run: { ...updated } };
   }
 
   async addArtifact(runId: string, artifact: FleetArtifactRecord): Promise<FleetRunRecord | null> {
@@ -65,10 +82,19 @@ export class InMemoryFleetStorage implements IFleetStorage {
   }
 
   async listAudit(filter: FleetAuditListFilter = {}): Promise<FleetAuditEntry[]> {
-    const filtered = filter.runId
-      ? this.audit.filter((entry) => entry.runId === filter.runId)
-      : this.audit;
+    const filtered = this.audit
+      .filter((entry) => (filter.runId ? entry.runId === filter.runId : true))
+      .filter((entry) => matchesTenant(entry.tenantId, filter.tenantId));
     const ordered = [...filtered].sort((left, right) => left.sequence - right.sequence);
     return (filter.limit ? ordered.slice(-filter.limit) : ordered).map((entry) => ({ ...entry }));
   }
+}
+
+function matchesTenant(
+  actualTenantId: string | undefined,
+  requestedTenantId: string | null | undefined,
+): boolean {
+  if (requestedTenantId === undefined) return true;
+  if (requestedTenantId === null) return actualTenantId === undefined;
+  return actualTenantId === requestedTenantId;
 }

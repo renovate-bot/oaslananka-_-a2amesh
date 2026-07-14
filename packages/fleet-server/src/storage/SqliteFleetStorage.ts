@@ -1,18 +1,21 @@
 import { DatabaseSync } from 'node:sqlite';
-import type { SqliteDatabase, SqliteDatabaseConstructor } from '@a2amesh/runtime';
 import type { FleetArtifactRecord } from '@a2amesh/internal-fleet';
+import type { SqliteDatabase, SqliteDatabaseConstructor } from '@a2amesh/runtime';
 import type {
   FleetAuditEntry,
   FleetAuditListFilter,
   FleetRunListFilter,
   FleetRunPatch,
   FleetRunRecord,
+  FleetRunTransitionCondition,
+  FleetRunTransitionResult,
   IFleetStorage,
 } from './IFleetStorage.js';
 import {
   initializeSqliteFleetStorage,
   type SqliteFleetStorageMigrationOptions,
 } from './SqliteFleetStorageMigrations.js';
+import { matchesRunExpectedState, matchesRunTargetState } from './runStateTransitions.js';
 
 export interface SqliteFleetStorageOptions extends SqliteFleetStorageMigrationOptions {
   databaseConstructor?: SqliteDatabaseConstructor | undefined;
@@ -28,6 +31,7 @@ interface AuditRow {
   task_id: string | null;
   action: FleetAuditEntry['action'];
   actor: string | null;
+  tenant_id: string | null;
   timestamp: string;
   detail_json: string | null;
 }
@@ -46,12 +50,13 @@ function parseRun(row: RunRow | undefined): FleetRunRecord | null {
 
 function upsertRun(db: SqliteDatabase, run: FleetRunRecord): void {
   db.prepare(
-    'INSERT INTO fleet_runs (id, task_id, status, approval_state, created_at, updated_at, run_json) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET task_id = excluded.task_id, status = excluded.status, approval_state = excluded.approval_state, updated_at = excluded.updated_at, run_json = excluded.run_json',
+    'INSERT INTO fleet_runs (id, task_id, status, approval_state, tenant_id, created_at, updated_at, run_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET task_id = excluded.task_id, status = excluded.status, approval_state = excluded.approval_state, tenant_id = excluded.tenant_id, updated_at = excluded.updated_at, run_json = excluded.run_json',
   ).run(
     run.id,
     run.taskId,
     run.status,
     run.approvalState,
+    run.tenantId ?? null,
     run.createdAt,
     run.updatedAt,
     JSON.stringify(run),
@@ -79,6 +84,12 @@ function listRuns(db: SqliteDatabase, filter: FleetRunListFilter): FleetRunRecor
     conditions.push('approval_state = ?');
     params.push(filter.approvalState);
   }
+  if (filter.tenantId === null) {
+    conditions.push('tenant_id IS NULL');
+  } else if (filter.tenantId !== undefined) {
+    conditions.push('tenant_id = ?');
+    params.push(filter.tenantId);
+  }
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
   const rows = db
     .prepare<RunRow>(`SELECT run_json FROM fleet_runs${where} ORDER BY created_at ASC`)
@@ -94,6 +105,35 @@ function updateRun(db: SqliteDatabase, id: string, patch: FleetRunPatch): FleetR
   const updated = { ...existing, ...patch };
   upsertRun(db, updated);
   return { ...updated };
+}
+
+function transitionRun(
+  db: SqliteDatabase,
+  id: string,
+  expected: FleetRunTransitionCondition,
+  patch: FleetRunPatch,
+): FleetRunTransitionResult {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const existing = getRun(db, id);
+    if (!existing) {
+      db.exec('COMMIT');
+      return { outcome: 'not-found' };
+    }
+    if (!matchesRunExpectedState(existing, expected)) {
+      db.exec('COMMIT');
+      return matchesRunTargetState(existing, patch)
+        ? { outcome: 'unchanged', run: existing }
+        : { outcome: 'conflict', run: existing };
+    }
+    const updated = { ...existing, ...patch };
+    upsertRun(db, updated);
+    db.exec('COMMIT');
+    return { outcome: 'updated', run: { ...updated } };
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
 }
 
 function addArtifact(
@@ -125,13 +165,14 @@ function appendAudit(
 ): FleetAuditEntry {
   const sequence = getNextAuditSequence(db);
   db.prepare(
-    'INSERT INTO fleet_audit (sequence, run_id, task_id, action, actor, timestamp, detail_json) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO fleet_audit (sequence, run_id, task_id, action, actor, tenant_id, timestamp, detail_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
   ).run(
     sequence,
     entry.runId ?? null,
     entry.taskId ?? null,
     entry.action,
     entry.actor ?? null,
+    entry.tenantId ?? null,
     entry.timestamp,
     entry.detail !== undefined ? JSON.stringify(entry.detail) : null,
   );
@@ -146,6 +187,7 @@ function mapAuditRow(row: AuditRow): FleetAuditEntry {
     ...(row.run_id !== null ? { runId: row.run_id } : {}),
     ...(row.task_id !== null ? { taskId: row.task_id } : {}),
     ...(row.actor !== null ? { actor: row.actor } : {}),
+    ...(row.tenant_id !== null ? { tenantId: row.tenant_id } : {}),
     ...(row.detail_json !== null
       ? { detail: JSON.parse(row.detail_json) as Record<string, unknown> }
       : {}),
@@ -153,30 +195,32 @@ function mapAuditRow(row: AuditRow): FleetAuditEntry {
 }
 
 function listAudit(db: SqliteDatabase, filter: FleetAuditListFilter): FleetAuditEntry[] {
-  const limitClause = filter.limit ? ' LIMIT ?' : '';
-  const rows = filter.runId
-    ? db
-        .prepare<AuditRow>(
-          `SELECT sequence, run_id, task_id, action, actor, timestamp, detail_json FROM fleet_audit WHERE run_id = ? ORDER BY sequence DESC${limitClause}`,
-        )
-        .all(...(filter.limit ? [filter.runId, filter.limit] : [filter.runId]))
-    : db
-        .prepare<AuditRow>(
-          `SELECT sequence, run_id, task_id, action, actor, timestamp, detail_json FROM fleet_audit ORDER BY sequence DESC${limitClause}`,
-        )
-        .all(...(filter.limit ? [filter.limit] : []));
+  const conditions: string[] = [];
+  const params: Array<string | number> = [];
+  if (filter.runId) {
+    conditions.push('run_id = ?');
+    params.push(filter.runId);
+  }
+  if (filter.tenantId === null) {
+    conditions.push('tenant_id IS NULL');
+  } else if (filter.tenantId !== undefined) {
+    conditions.push('tenant_id = ?');
+    params.push(filter.tenantId);
+  }
+  const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
+  const limit = filter.limit ? ' LIMIT ?' : '';
+  if (filter.limit) {
+    params.push(filter.limit);
+  }
+  const rows = db
+    .prepare<AuditRow>(
+      `SELECT sequence, run_id, task_id, action, actor, tenant_id, timestamp, detail_json FROM fleet_audit${where} ORDER BY sequence DESC${limit}`,
+    )
+    .all(...params);
   return rows.map(mapAuditRow).reverse();
 }
 
-/**
- * SQLite-backed `IFleetStorage`. Each `FleetRunRecord` is stored as a JSON
- * blob (matching `@a2amesh/runtime`'s `task_json` convention) alongside
- * indexed `status`/`approval_state`/`created_at` columns for `listRuns`
- * filtering; the audit timeline is a dedicated append-only, sequence-numbered
- * table mirroring the runtime task audit journal and the registry trust log.
- * Durable alternative to `InMemoryFleetStorage` for deployments where run and
- * audit state must survive a process restart.
- */
+/** SQLite-backed `IFleetStorage`. */
 export class SqliteFleetStorage implements IFleetStorage {
   private readonly db: SqliteDatabase;
 
@@ -207,6 +251,14 @@ export class SqliteFleetStorage implements IFleetStorage {
 
   async updateRun(id: string, patch: FleetRunPatch): Promise<FleetRunRecord | null> {
     return updateRun(this.db, id, patch);
+  }
+
+  async transitionRun(
+    id: string,
+    expected: FleetRunTransitionCondition,
+    patch: FleetRunPatch,
+  ): Promise<FleetRunTransitionResult> {
+    return transitionRun(this.db, id, expected, patch);
   }
 
   async addArtifact(runId: string, artifact: FleetArtifactRecord): Promise<FleetRunRecord | null> {
